@@ -1,28 +1,45 @@
 package sc.map.planet;
 
-import arc.graphics.*;
-import arc.math.*;
-import arc.math.geom.*;
-import arc.struct.*;
-import arc.util.*;
-import arc.util.noise.*;
-import mindustry.ai.*;
-import mindustry.ai.BaseRegistry.*;
-import mindustry.content.*;
-import mindustry.game.*;
-import mindustry.graphics.g3d.PlanetGrid.*;
-import mindustry.maps.generators.*;
-import mindustry.type.*;
-import mindustry.world.*;
-import mindustry.world.blocks.environment.*;
+import static mindustry.Vars.*;
+
+import arc.graphics.Color;
+import arc.math.Angles;
+import arc.math.Mathf;
+import arc.math.Rand;
+import arc.math.geom.Geometry;
+import arc.math.geom.Point2;
+import arc.math.geom.Vec2;
+import arc.math.geom.Vec3;
+import arc.struct.FloatSeq;
+import arc.struct.IntSeq;
+import arc.struct.ObjectMap;
+import arc.struct.ObjectSet;
+import arc.struct.Seq;
+import arc.util.Structs;
+import arc.util.Tmp;
+import arc.util.noise.Noise;
+import arc.util.noise.Ridged;
+import arc.util.noise.Simplex;
+import mindustry.ai.Astar;
+import mindustry.ai.BaseRegistry.BasePart;
+import mindustry.content.Blocks;
+import mindustry.content.Liquids;
+import mindustry.game.Schematics;
+import mindustry.game.Team;
+import mindustry.graphics.g3d.PlanetGrid.Ptile;
+import mindustry.maps.generators.BaseGenerator;
+import mindustry.maps.generators.PlanetGenerator;
+import mindustry.type.Sector;
+import mindustry.world.Block;
+import mindustry.world.Tile;
+import mindustry.world.TileGen;
+import mindustry.world.Tiles;
+import mindustry.world.blocks.environment.Floor;
 import sc.content.SCLoadouts;
 import sc.content.SCOre;
 import sc.game.SCWaves;
 
-import static mindustry.Vars.*;
-
 public class LxPlanetGenerator extends PlanetGenerator {
-
     // alternate, less direct generation (wip)
     public static boolean alt = false;
 
@@ -32,31 +49,27 @@ public class LxPlanetGenerator extends PlanetGenerator {
     boolean genLakes = false;
 
     Block[][] arr = {
-            { Blocks.ice, Blocks.grass, Blocks.grass, Blocks.grass, Blocks.grass, Blocks.grass,
-                    Blocks.water, Blocks.stone, Blocks.stone, Blocks.stone, Blocks.snow, Blocks.iceSnow, Blocks.ice },
-            { Blocks.grass, Blocks.grass, Blocks.water, Blocks.water, Blocks.dacite, Blocks.dacite, Blocks.ice,
-                    Blocks.grass, Blocks.shale, Blocks.stone, Blocks.snow, Blocks.iceSnow, Blocks.grass },
+            { Blocks.water, Blocks.water, Blocks.grass, Blocks.grass, Blocks.salt, Blocks.grass, Blocks.sand,
+                    Blocks.grass, Blocks.snow, Blocks.water, Blocks.snow, Blocks.snow, Blocks.ice },
+            { Blocks.grass, Blocks.water, Blocks.water, Blocks.grass, Blocks.sand, Blocks.sand, Blocks.water,
+                    Blocks.iceSnow, Blocks.grass, Blocks.snow, Blocks.ice, Blocks.snow, Blocks.ice },
     };
+    {
+        defaultLoadout = SCLoadouts.jichuhexi;
+
+    }
 
     ObjectMap<Block, Block> dec = ObjectMap.of(
-            Blocks.shale, Blocks.grass,
+            Blocks.sporeMoss, Blocks.sporeCluster,
             Blocks.moss, Blocks.sporeCluster,
             Blocks.taintedWater, Blocks.water,
-            Blocks.grass, Blocks.darksandWater);
+            Blocks.darksandTaintedWater, Blocks.darksandWater);
 
     ObjectMap<Block, Block> tars = ObjectMap.of(
             Blocks.sporeMoss, Blocks.shale,
             Blocks.moss, Blocks.shale);
 
     float water = 2f / arr[0].length;
-    {
-        defaultLoadout = SCLoadouts.jichuhexi;
-    }
-
-    @Override
-    public boolean allowLanding(Sector sector) {
-        return true;
-    }
 
     float rawHeight(Vec3 position) {
         position = Tmp.v33.set(position).scl(scl);
@@ -68,7 +81,7 @@ public class LxPlanetGenerator extends PlanetGenerator {
     public void generateSector(Sector sector) {
 
         // these always have bases
-        if (sector.id == 1 || sector.id == 0) {
+        if (sector.id == 154 || sector.id == 0) {
             sector.generateEnemyBase = true;
             return;
         }
@@ -89,7 +102,7 @@ public class LxPlanetGenerator extends PlanetGenerator {
 
                 // no sectors near start sector!
                 if (osec.id == sector.planet.startSector || // near starting sector
-                        osec.generateEnemyBase && poles < 0.35 || // near other base
+                        osec.generateEnemyBase && poles < 0.85 || // near other base
                         (sector.preset != null && noise < 0.11) // near preset
                 ) {
                     return;
@@ -444,18 +457,13 @@ public class LxPlanetGenerator extends PlanetGenerator {
 
         if (Simplex.noise3d(seed, 2, 0.5, scl, sector.tile.v.x + 2, sector.tile.v.y, sector.tile.v.z) * nmag
                 + poles > 0.7f * addscl) {
-            ores.add(SCOre.oreJin);
-            ores.add(SCOre.oreYou);
-        }
-        if (Simplex.noise3d(seed, 2, 0.5, scl, sector.tile.v.x + 3, sector.tile.v.y, sector.tile.v.z) * nmag
-                + poles > 0.92f * addscl) {
-            ores.add(SCOre.oreChijin);
+            ores.add(SCOre.oreJin, SCOre.oreYou);
         }
 
         if (rand.chance(0.25)) {
             ores.add(SCOre.oreFeizha);
         }
-        if (rand.chance(0.01)) {
+        if (rand.chance(0.05)) {
             ores.add(SCOre.oreGutaineng);
         }
 
@@ -616,7 +624,7 @@ public class LxPlanetGenerator extends PlanetGenerator {
                 }
 
                 // actually place the part
-                if (part != null && BaseGenerator.tryPlace(part, x, y, Team.derelict, (cx, cy) -> {
+                if (part != null && BaseGenerator.tryPlace(part, x, y, Team.derelict, rand, (cx, cy) -> {
                     Tile other = tiles.getn(cx, cy);
                     if (other.floor().hasSurface()) {
                         other.setOverlay(Blocks.oreScrap);
@@ -680,7 +688,7 @@ public class LxPlanetGenerator extends PlanetGenerator {
         state.rules.enemyCoreBuildRadius = 600f;
 
         // spawn air only when spawn is blocked
-        state.rules.spawns = SCWaves.generateLx(difficulty, new Rand(sector.id + baseSeed));
+        state.rules.spawns = SCWaves.generateLx(difficulty, new Rand(sector.id), state.rules.attackMode);
     }
 
     @Override
@@ -690,8 +698,7 @@ public class LxPlanetGenerator extends PlanetGenerator {
 
             // spawn air enemies
             if (spawner.countGroundSpawns() == 0) {
-                state.rules.spawns = Waves.generate(sector.threat, new Rand(sector.id), state.rules.attackMode, true,
-                        false);
+                state.rules.spawns = SCWaves.generateLx(sector.threat, new Rand(sector.id), state.rules.attackMode);
             }
         }
     }

@@ -10,6 +10,7 @@ import mindustry.content.StatusEffects;
 import mindustry.game.SpawnGroup;
 import mindustry.type.UnitType;
 
+//海军还没搞，所以只能两个布尔
 public class SCWaves {
     public static Seq<SpawnGroup> generateLx(float difficulty) {
         // apply power curve to make starting sectors easier
@@ -23,7 +24,7 @@ public class SCWaves {
     public static Seq<SpawnGroup> generateLx(float difficulty, Rand rand, boolean airOnly) {
         UnitType[][] species = {
                 { chujia1, chujia2, chujia3, chujia4, chujia5 }
-              //  { liekong1, liekong2 }
+                // { liekong1, liekong2 }
         };
 
         if (airOnly) {

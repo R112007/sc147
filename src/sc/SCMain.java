@@ -2,6 +2,7 @@ package sc;
 
 import sc.content.SCUnits;
 import sc.content.Test;
+import sc.ui.dialogs.SCPlanetDialog;
 import mindustry.mod.Mod;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
@@ -39,8 +40,12 @@ public class SCMain extends Mod {
     Log.info("Loaded Synthetic Crystal Mod Constructor.");
     Vars.renderer.minZoom = 0.1f;
     Vars.renderer.maxZoom = 30.0f;
+    if (!(Vars.ui.planet instanceof SCPlanetDialog)) {
+      Vars.ui.planet = new SCPlanetDialog();
+    }
     Log.info("缩放");
     Events.on(mindustry.game.EventType.ClientLoadEvent.class, (e) -> {
+      Vars.ui.planet = new SCPlanetDialog();
       welcomeDialog = new BaseDialog(Core.bundle.get("sc.welcome"));
       welcomeDialog.cont.image(Core.atlas.find("sc-crystal-core")).size(310f).pad(5.0f).row();
       welcomeDialog.cont.pane(t -> {

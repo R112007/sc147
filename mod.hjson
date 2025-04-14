@@ -19,7 +19,7 @@ description: "[#55b2ff[]]合晶工业的java重置版本。\n当前版本：1.0,
 version: 1.0
 
 #the minimum game build required to run this mod
-minGameVersion: 146
+minGameVersion: 147
 
 #this is a java mod
 java: true

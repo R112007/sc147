@@ -11,11 +11,9 @@ public class LxMaps {
     LxMaps.jianglindian = new SectorPreset("jianglindian", SCPlanets.lx, 1) {
       {
         this.alwaysUnlocked = true;
-        this.difficulty = 1;
-        this.addStartingItems = true;
+        this.difficulty = 50;
         this.captureWave = 25;
         this.overrideLaunchDefaults = true;
-        this.noLighting = true;
         this.startWaveTimeMultiplier = 3f;
       }
     };
