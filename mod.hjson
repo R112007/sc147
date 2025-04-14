@@ -1,0 +1,25 @@
+
+#the mod name as displayed in-game
+displayName: "[#55b2ff[]]Synthetic Crystal"
+
+#the internal name of your mod
+name: "sc"
+
+#your name
+author: "RHN&R"
+
+#the fully qualified main class of the mod
+main: "sc.SCMain"
+
+#the mod description as seen in the mod dialog
+description: "[#55b2ff[]]合晶工业的java重置版本。\n当前版本：1.0,重置进度20%
+  模组群756820891欢迎入群"
+
+#the mod version
+version: 1.0
+
+#the minimum game build required to run this mod
+minGameVersion: 146
+
+#this is a java mod
+java: true
