@@ -4,6 +4,7 @@ import sc.content.SCUnits;
 import sc.content.Test;
 import sc.ui.dialogs.SCPlanetDialog;
 import mindustry.mod.Mod;
+import mindustry.type.Sector;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
 import sc.content.SCItems;
@@ -28,6 +29,7 @@ import arc.util.Log;
 import arc.util.Time;
 import sc.content.SCBlocks;
 import mindustry.core.Renderer;
+import mindustry.game.EventType.Trigger;
 import sc.content.LxMaps;
 import sc.content.LxTechTree;
 import mindustry.Vars;
@@ -40,12 +42,15 @@ public class SCMain extends Mod {
     Log.info("Loaded Synthetic Crystal Mod Constructor.");
     Vars.renderer.minZoom = 0.1f;
     Vars.renderer.maxZoom = 30.0f;
-    if (!(Vars.ui.planet instanceof SCPlanetDialog)) {
-      Vars.ui.planet = new SCPlanetDialog();
-    }
+    /**
+     * if (!(Vars.ui.planet instanceof SCPlanetDialog)) {
+     * Vars.ui.planet = new SCPlanetDialog();
+     * }
+     */
     Log.info("缩放");
+
     Events.on(mindustry.game.EventType.ClientLoadEvent.class, (e) -> {
-      Vars.ui.planet = new SCPlanetDialog();
+      // Vars.ui.planet = new SCPlanetDialog();
       welcomeDialog = new BaseDialog(Core.bundle.get("sc.welcome"));
       welcomeDialog.cont.image(Core.atlas.find("sc-crystal-core")).size(310f).pad(5.0f).row();
       welcomeDialog.cont.pane(t -> {
@@ -79,6 +84,17 @@ public class SCMain extends Mod {
   @Override
   public void init() {
     Log.info("loaded init");
+    Events.on(mindustry.game.EventType.ClientLoadEvent.class, (e) -> {
+      SCPlanetDialog scp = new SCPlanetDialog();
+      Events.run(Trigger.update, () -> {
+        if (Vars.ui.planet.isShown()) {
+          Vars.ui.planet.hide();
+          if (!scp.isShown()) {
+            scp.show();
+          }
+        }
+      });
+    });
     /**
      * ImageButton imagebutton = addIcon("crystal-core", Styles.defaulti,
      * welcomeDialog);

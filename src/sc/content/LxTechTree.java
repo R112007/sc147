@@ -41,6 +41,28 @@ public class LxTechTree {
               });
             });
             node(lvbridge, () -> {
+              node(xiconveyor, () -> {
+                node(feijingconveyor, () -> {
+                  node(sujiaoconveyor, () -> {
+                    node(thickconveyor, () -> {
+                    });
+                  });
+                });
+                node(chijinconveyor, () -> {
+                  node(armorchijinconveyor, () -> {
+                  });
+                });
+                node(armorxiconveyor, () -> {
+                });
+              });
+              node(xibridge, () -> {
+                node(massdriver1, () -> {
+                  node(massdriver2, () -> {
+                  });
+                });
+                node(chijinbridge, () -> {
+                });
+              });
               node(dropdrill1, () -> {
               });
             });
@@ -53,6 +75,8 @@ public class LxTechTree {
               });
             });
             node(lvfenpeiqi, () -> {
+              node(lvfenliuqi, () -> {
+              });
             });
           });
         });

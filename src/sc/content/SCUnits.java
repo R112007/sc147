@@ -6,6 +6,8 @@ import sc.entities.abilities.FlashAbility;
 import sc.graphics.SCPal;
 import arc.graphics.Color;
 import arc.math.Rand;
+import arc.struct.Seq;
+import mindustry.ai.types.MinerAI;
 import mindustry.content.Fx;
 import mindustry.content.StatusEffects;
 import mindustry.content.UnitTypes;
@@ -37,12 +39,14 @@ public class SCUnits {
   public static UnitType chujia4;// 224
   public static UnitType chujia5;// 321
   public static UnitType chujia6;// 423
-  public static UnitType papa1;// 670
-  public static UnitType papa2;// 703
-  public static UnitType papa3;//
-  public static UnitType liekong1;//
-  public static UnitType liekong2;//
-  public static UnitType liekong3;//
+  public static UnitType papa1;
+  public static UnitType papa2;
+  public static UnitType papa3;
+  public static UnitType liekong1;
+  public static UnitType liekong2;
+  public static UnitType liekong3;
+  public static UnitType miner1;
+  public static UnitType miner2;
 
   public static void load() {
     SCUnits.tansuozhe = new UnitType("tansuozhe") {
@@ -721,9 +725,9 @@ public class SCUnits {
         this.hitSize = 15f;
         this.rotateSpeed = 5f;
         this.itemCapacity = 20;
+        this.speed = 0.6f;
         this.constructor = UnitTypes.atrax.constructor;
         this.controller = UnitTypes.atrax.controller;
-        this.legCount = 4;
         this.weapons.add(new Weapon("sc-papa2-weapon1") {
           {
             this.reload = 30;
@@ -1041,6 +1045,46 @@ public class SCUnits {
             };
           }
         });
+      }
+    };
+    SCUnits.miner1 = new UnitType("miner1") {
+      {
+        this.speed = 1.5f;
+        this.controller = u -> new MinerAI();
+        this.constructor = UnitTypes.mono.constructor;
+        this.rotateSpeed = 2;
+        this.flying = true;
+        this.health = 150;
+        this.armor = 2;
+        this.hitSize = 10;
+        this.engineOffset = 5;
+        this.engineSize = 2;
+        this.lowAltitude = true;
+        this.itemCapacity = 30;
+        this.mineSpeed = 5;
+        this.mineTier = 1;
+        this.mineItems = Seq.with(SCItems.lv, SCItems.li);
+
+      }
+    };
+    SCUnits.miner2 = new UnitType("miner2") {
+      {
+        this.speed = 1.5f;
+        this.constructor = UnitTypes.poly.constructor;
+        this.controller = UnitTypes.poly.controller;
+        this.rotateSpeed = 4;
+        this.flying = true;
+        this.health = 450;
+        this.armor = 2;
+        this.hitSize = 10;
+        this.engineOffset = 3.5f;
+        this.engineSize = 4;
+        this.lowAltitude = true;
+        this.itemCapacity = 50;
+        this.mineSpeed = 8;
+        this.mineTier = 2;
+        this.mineItems = Seq.with(SCItems.lv, SCItems.li, SCItems.tandanzhi);
+
       }
     };
   }

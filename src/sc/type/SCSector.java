@@ -16,10 +16,10 @@ public class SCSector extends Sector {
   }
 
   public String displayThreat() {
-    float step = 0.25F;
-    String color = Tmp.c1.set(Color.white).lerp(Color.scarlet, Mathf.round(this.threat, step)).toString();
-    String[] threats = SCVars.threats;
-    int index = Math.min((int) (this.threat / step), threats.length - 1);
+    float step = 0.25f;
+    String color = Tmp.c1.set(Color.white).lerp(Color.scarlet, Mathf.round(threat, step)).toString();
+    String[] threats = { "low", "medium", "high", "extreme", "eradication" };
+    int index = Math.min((int) (threat / step), threats.length - 1);
     return "[#" + color + "]" + Core.bundle.get("threat." + threats[index]);
   }
 }

@@ -1,75 +1,85 @@
 package sc.ui.dialogs;
 
-import arc.Core;
-import arc.Events;
-import arc.files.Fi;
-import arc.files.ZipFi;
-import arc.func.Cons;
-import arc.graphics.Color;
-import arc.graphics.Gl;
-import arc.graphics.Texture;
-import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.TextureRegion;
-import arc.input.KeyCode;
-import arc.math.Mathf;
-import arc.math.geom.Vec3;
-import arc.scene.Element;
-import arc.scene.event.ElementGestureListener;
-import arc.scene.event.InputEvent;
-import arc.scene.event.InputListener;
-import arc.scene.event.Touchable;
-import arc.scene.style.TextureRegionDrawable;
+import arc.*;
+import arc.assets.loaders.TextureLoader.*;
+import arc.func.*;
+import arc.graphics.*;
+import arc.graphics.Texture.*;
+import arc.graphics.g2d.*;
+import arc.graphics.gl.*;
+import arc.input.*;
+import arc.math.*;
+import arc.math.geom.*;
+import arc.scene.*;
+import arc.scene.event.*;
+import arc.scene.style.*;
 import arc.scene.ui.*;
-import arc.scene.ui.layout.Scl;
-import arc.scene.ui.layout.Table;
-import arc.struct.ObjectMap;
-import arc.struct.Seq;
+import arc.scene.ui.layout.*;
+import arc.struct.*;
 import arc.util.*;
-import mindustry.Vars;
-import mindustry.content.Planets;
-import mindustry.content.TechTree;
-import mindustry.core.UI;
-import mindustry.core.Version;
-import mindustry.ctype.ContentType;
-import mindustry.ctype.UnlockableContent;
+import mindustry.*;
+import mindustry.content.*;
+import mindustry.content.TechTree.*;
+import mindustry.core.*;
+import mindustry.ctype.*;
+import mindustry.game.EventType.*;
+import mindustry.game.Objectives.*;
+import mindustry.game.SectorInfo.*;
 import mindustry.game.*;
-import mindustry.gen.Icon;
-import mindustry.gen.Iconc;
-import mindustry.gen.Tex;
-import mindustry.graphics.Pal;
-import mindustry.graphics.g3d.PlanetGrid;
-import mindustry.graphics.g3d.PlanetRenderer;
-import mindustry.input.Binding;
-import mindustry.maps.SectorDamage;
-import mindustry.maps.planet.ErekirPlanetGenerator;
-import mindustry.maps.planet.SerpuloPlanetGenerator;
+import mindustry.gen.*;
+import mindustry.graphics.*;
+import mindustry.graphics.g3d.PlanetGrid.*;
+import mindustry.graphics.g3d.*;
+import mindustry.input.*;
+import mindustry.maps.*;
 import mindustry.type.*;
-import mindustry.ui.Fonts;
-import mindustry.ui.Styles;
+import mindustry.ui.*;
 import mindustry.ui.dialogs.BaseDialog;
-import mindustry.ui.dialogs.PlanetDialog;
-import mindustry.world.blocks.storage.CoreBlock;
-import mindustry.world.blocks.storage.CoreBlock.CoreBuild;
+import mindustry.ui.dialogs.CampaignRulesDialog;
+import mindustry.ui.dialogs.LaunchLoadoutDialog;
+import mindustry.world.blocks.storage.*;
+import mindustry.world.blocks.storage.CoreBlock.*;
 import sc.SCVars;
+import sc.type.SCSector;
 
 import static arc.Core.*;
 import static mindustry.Vars.*;
 import static mindustry.graphics.g3d.PlanetRenderer.*;
-import static mindustry.graphics.g3d.PlanetRenderer.borderColor;
-import static mindustry.ui.dialogs.PlanetDialog.Mode.*;
+import static sc.ui.dialogs.SCPlanetDialog.Mode.*;
 
-public class SCPlanetDialog extends PlanetDialog {
-    public static final String[] defaultIcons = {
-            "effect", "power", "logic", "units", "liquid", "production", "defense", "turret", "distribution",
-            "crafting",
-            "settings", "cancel", "zoom", "ok", "star", "home", "pencil", "up", "down", "left", "right",
-            "hammer", "warning", "tree", "admin", "map", "modePvp", "terrain",
-            "modeSurvival", "commandRally", "commandAttack",
+public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRenderer {
+    // if true, enables launching anywhere for testing
+    public static boolean debugSelect = false;
+    public static float sectorShowDuration = 60f * 2.4f;
+
+    public final FrameBuffer buffer = new FrameBuffer(2, 2, true);
+    public final LaunchLoadoutDialog loadouts = new LaunchLoadoutDialog();
+    public final PlanetRenderer planets = renderer.planets;
+
+    public PlanetParams state = new PlanetParams();
+    public float zoom = 1f;
+    public @Nullable Sector selected, hovered, launchSector;
+    /** Must not be null in planet launch mode. */
+    public @Nullable Seq<Planet> launchCandidates;
+    public Mode mode = look;
+    public boolean launching;
+    public Cons<Sector> listener = s -> {
     };
-    public Texture[] planetTextures;
+
+    public Seq<Sector> newPresets = new Seq<>();
+    public float presetShow = 0f;
+    public boolean showed = false, sectorsShown;
+    public String searchText = "";
+
+    public Table sectorTop = new Table(), notifs = new Table(), expandTable = new Table();
+    public Label hoverLabel = new Label("");
+
+    private Texture[] planetTextures;
+    private CampaignRulesDialog campaignRules = new CampaignRulesDialog();
 
     public SCPlanetDialog() {
-        super();
+        super("", Styles.fullDialog);
+
         state.renderer = this;
         state.drawUi = true;
 
@@ -77,6 +87,7 @@ public class SCPlanetDialog extends PlanetDialog {
         state.planet = content.getByName(ContentType.planet, Core.settings.getString("lastplanet", "serpulo"));
         if (state.planet == null)
             state.planet = Planets.serpulo;
+
         addListener(new InputListener() {
             @Override
             public boolean keyDown(InputEvent event, KeyCode key) {
@@ -95,6 +106,14 @@ public class SCPlanetDialog extends PlanetDialog {
                 return false;
             }
         });
+
+        hoverLabel.setStyle(Styles.outlineLabel);
+        hoverLabel.setAlignment(Align.center);
+
+        rebuildButtons();
+
+        onResize(this::rebuildButtons);
+
         dragged((cx, cy) -> {
             // no multitouch drag
             if (Core.input.getTouches() > 1)
@@ -148,6 +167,14 @@ public class SCPlanetDialog extends PlanetDialog {
             public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button) {
                 lastZoom = zoom;
             }
+
+            @Override
+            public void tap(InputEvent event, float x, float y, int count, KeyCode button) {
+                var hovered = getHoverPlanet(x, y);
+                if (hovered != null) {
+                    viewPlanet(hovered, false);
+                }
+            }
         });
 
         shown(this::setup);
@@ -156,7 +183,7 @@ public class SCPlanetDialog extends PlanetDialog {
         // hasn't selected yet (essentially a "have they played campaign before" check)
         shown(() -> {
             if (!settings.getBool("campaignselect")
-                    && !content.planets().contains(p -> p.sectors.contains(s -> s.hasBase()))) {
+                    && !content.planets().contains(p -> p.sectors.contains(Sector::hasBase))) {
                 var diag = new BaseDialog("@campaign.select");
 
                 Planet[] selected = { null };
@@ -192,6 +219,258 @@ public class SCPlanetDialog extends PlanetDialog {
                 app.post(diag::show);
             }
         });
+
+        planetTextures = new Texture[2];
+        String[] names = { "sprites/planets/serpulo.png", "sprites/planets/erekir.png" };
+        for (int i = 0; i < names.length; i++) {
+            int fi = i;
+            assets.load(names[i], Texture.class, new TextureParameter() {
+                {
+                    minFilter = magFilter = TextureFilter.linear;
+                }
+            }).loaded = t -> planetTextures[fi] = t;
+            assets.finishLoadingAsset(names[i]);
+        }
+
+        // unlock defaults for older campaign saves (TODO move? where to?)
+        if (content.planets().contains(p -> p.sectors.contains(Sector::hasBase)) || Blocks.scatter.unlocked()
+                || Blocks.router.unlocked()) {
+            Seq.with(Blocks.junction, Blocks.mechanicalDrill, Blocks.conveyor, Blocks.duo, Items.copper, Items.lead)
+                    .each(UnlockableContent::quietUnlock);
+        }
+    }
+
+    /** show with no limitations, just as a map. */
+    @Override
+    public Dialog show() {
+        if (net.client()) {
+            ui.showInfo("@map.multiplayer");
+            return this;
+        }
+
+        // view current planet by default
+        if (Vars.state.rules.sector != null) {
+            state.planet = Vars.state.rules.sector.planet;
+            settings.put("lastplanet", state.planet.name);
+        }
+
+        if (!selectable(state.planet)) {
+            state.planet = Planets.serpulo;
+        }
+
+        rebuildButtons();
+        mode = look;
+        state.otherCamPos = null;
+        selected = hovered = launchSector = null;
+        launching = false;
+
+        zoom = 1f;
+        state.zoom = 1f;
+        state.uiAlpha = 0f;
+        launchSector = Vars.state.getSector();
+        presetShow = 0f;
+        showed = false;
+        listener = s -> {
+        };
+
+        newPresets.clear();
+
+        // announce new presets
+        for (SectorPreset preset : content.sectors()) {
+            if (preset.unlocked() && !preset.alwaysUnlocked && !preset.sector.info.shown && !preset.sector.hasBase()
+                    && preset.planet == state.planet) {
+                newPresets.add(preset.sector);
+                preset.sector.info.shown = true;
+                preset.sector.saveInfo();
+            }
+        }
+
+        if (newPresets.any()) {
+            newPresets.add(state.planet.getLastSector());
+        }
+
+        newPresets.reverse();
+        updateSelected();
+
+        if (state.planet.getLastSector() != null) {
+            lookAt(state.planet.getLastSector());
+        }
+
+        return super.show();
+    }
+
+    void rebuildButtons() {
+        buttons.clearChildren();
+
+        buttons.bottom();
+
+        if (Core.graphics.isPortrait()) {
+            buttons.add(sectorTop).colspan(2).fillX().row();
+            addBack();
+            addTech();
+        } else {
+            addBack();
+            buttons.add().growX();
+            buttons.add(sectorTop).minWidth(230f);
+            buttons.add().growX();
+            addTech();
+        }
+    }
+
+    void addBack() {
+        buttons.button("@back", Icon.left, this::hide).size(200f, 54f).pad(2).bottom();
+    }
+
+    void addTech() {
+        buttons.button("@techtree", Icon.tree, () -> ui.research.show()).size(200f, 54f).visible(() -> mode == look)
+                .pad(2).bottom();
+    }
+
+    public void showOverview() {
+        // TODO implement later if necessary
+        /*
+         * sectors.captured = Captured Sectors
+         * sectors.explored = Explored Sectors
+         * sectors.production.total = Total Production
+         * sectors.resources.total = Total Resources
+         */
+        var dialog = new BaseDialog("@overview");
+        dialog.addCloseButton();
+
+        dialog.add("@sectors.captured");
+    }
+
+    // TODO not fully implemented, cutscene needed
+    public void showPlanetLaunch(Sector sector, Seq<Planet> launchCandidates, Cons<Sector> listener) {
+        selected = null;
+        hovered = null;
+        launching = false;
+        this.listener = listener;
+        this.launchCandidates = (launchCandidates == null ? sector.planet.launchCandidates : launchCandidates);
+        launchSector = sector;
+
+        // automatically select next planets;
+        if (this.launchCandidates.size == 1) {
+            state.planet = this.launchCandidates.first();
+            state.otherCamPos = sector.planet.position;
+            state.otherCamAlpha = 0f;
+
+            // unlock and highlight sector
+            var destSec = state.planet.sectors.get(state.planet.startSector);
+            var preset = destSec.preset;
+            if (preset != null) {
+                preset.unlock();
+            }
+            selected = destSec;
+        }
+
+        // TODO pan over to correct planet
+
+        // update view to sector
+        zoom = 1f;
+        state.zoom = 1f;
+        state.uiAlpha = 0f;
+
+        mode = planetLaunch;
+
+        updateSelected();
+        rebuildExpand();
+
+        if (sectorTop != null) {
+            sectorTop.color.a = 0f;
+        }
+
+        super.show();
+    }
+
+    public void showSelect(Sector sector, Cons<Sector> listener) {
+        selected = null;
+        hovered = null;
+        launching = false;
+        this.listener = listener;
+
+        // update view to sector
+        lookAt(sector);
+        zoom = 1f;
+        state.zoom = 1f;
+        state.uiAlpha = 0f;
+        state.otherCamPos = null;
+        launchSector = sector;
+
+        mode = select;
+
+        super.show();
+    }
+
+    public void lookAt(Sector sector) {
+        if (sector.tile == Ptile.empty)
+            return;
+
+        // TODO should this even set `state.planet`? the other lookAt() doesn't, so...
+        state.planet = sector.planet;
+        sector.planet.lookAt(sector, state.camPos);
+    }
+
+    public void lookAt(Sector sector, float alpha) {
+        float len = state.camPos.len();
+        state.camPos.slerp(sector.planet.lookAt(sector, Tmp.v33).setLength(len), alpha);
+    }
+
+    boolean canSelect(Sector sector) {
+        if (mode == select)
+            return sector.hasBase() && launchSector != null && sector.planet == launchSector.planet;
+
+        if (mode == planetLaunch && sector.hasBase()) {
+            return false;
+        }
+
+        if (sector.hasBase() || sector.id == sector.planet.startSector)
+            return true;
+        // preset sectors can only be selected once unlocked
+        if (sector.preset != null && sector.preset.requireUnlock) {
+            TechNode node = sector.preset.techNode;
+            return sector.preset.unlocked() || node == null || node.parent == null || (node.parent.content.unlocked()
+                    && (!(node.parent.content instanceof SectorPreset preset) || preset.sector.hasBase()));
+        }
+
+        return sector.planet.generator != null ?
+        // use planet impl when possible
+                (mode == planetLaunch ? sector.planet.generator.allowAcceleratorLanding(sector)
+                        : sector.planet.generator.allowLanding(sector))
+                : mode == planetLaunch || sector.hasBase() || sector.near().contains(Sector::hasBase); // near an
+                                                                                                       // occupied
+                                                                                                       // sector
+    }
+
+    Sector findLauncher(Sector to) {
+        if (mode == planetLaunch) {
+            return launchSector;
+        }
+
+        Sector launchSector = this.launchSector != null && this.launchSector.planet == to.planet
+                && this.launchSector.hasBase() ? this.launchSector : null;
+        // directly nearby.
+        if (to.near().contains(launchSector))
+            return launchSector;
+
+        Sector launchFrom = launchSector;
+        if (launchFrom == null || (to.preset == null && !to.near().contains(launchSector))) {
+            // TODO pick one with the most resources
+            launchFrom = to.near().find(Sector::hasBase);
+            if (launchFrom == null && to.preset != null) {
+                if (launchSector != null)
+                    return launchSector;
+                launchFrom = state.planet.sectors.min(s -> !s.hasBase() ? Float.MAX_VALUE : s.tile.v.dst2(to.tile.v));
+                if (!launchFrom.hasBase())
+                    launchFrom = null;
+            }
+        }
+
+        return launchFrom;
+    }
+
+    boolean showing() {
+        return newPresets.any();
     }
 
     @Override
@@ -201,28 +480,12 @@ public class SCPlanetDialog extends PlanetDialog {
         if (state.uiAlpha > 0.01f) {
             for (Sector sec : planet.sectors) {
                 if (canSelect(sec) || sec.unlocked() || debugSelect) {
-                    Rules r = new Rules();
-                    sec.planet.ruleSetter.get(r);
-                    Color enemyColor = sec.save != null ? sec.save.meta.rules.waveTeam.color
-                            : sec.planet.generator instanceof SerpuloPlanetGenerator ? Team.crux.color
-                                    : sec.planet.generator instanceof ErekirPlanetGenerator ? Team.malis.color
-                                            : r.waveTeam.color;
+
                     Color color = sec.hasBase()
-                            ? Tmp.c2.set(r.defaultTeam.color).lerp(enemyColor, sec.hasEnemyBase() ? 0.5f : 0f)
-                            : sec.preset != null ? sec.preset.unlocked()
+                            ? Tmp.c2.set(Team.sharded.color).lerp(Team.crux.color, sec.hasEnemyBase() ? 0.5f : 0f)
+                            : sec.preset != null && sec.preset.requireUnlock ? sec.preset.unlocked()
                                     ? Tmp.c2.set(Team.derelict.color).lerp(Color.white, Mathf.absin(Time.time, 10f, 1f))
-                                    : Color.gray : sec.hasEnemyBase() ? enemyColor : new Color();
-                    /*
-                     * color =
-                     * sec.hasBase() ? Tmp.c2.set(Team.sharded.color).lerp(Team.crux.color,
-                     * sec.hasEnemyBase() ? 0.5f : 0f) :
-                     * sec.preset != null ?
-                     * sec.preset.unlocked() ? Tmp.c2.set(Team.derelict.color).lerp(Color.white,
-                     * Mathf.absin(Time.time, 10f, 1f)) :
-                     * Color.gray :
-                     * sec.hasEnemyBase() ? Team.crux.color :
-                     * null;
-                     */
+                                    : Color.gray : sec.hasEnemyBase() ? Team.crux.color : null;
 
                     if (color != null) {
                         planets.drawSelection(sec, Tmp.c1.set(color).mul(0.8f).a(state.uiAlpha), 0.026f, -0.001f);
@@ -261,10 +524,14 @@ public class SCPlanetDialog extends PlanetDialog {
             }
         }
 
+        if (mode == planetLaunch && launchSector != null && selected != null && hovered == null) {
+            planets.drawArc(planet, launchSector.tile.v, selected.tile.v);
+        }
+
         if (state.uiAlpha > 0.001f) {
             for (Sector sec : planet.sectors) {
                 if (sec.hasBase()) {
-                    if (planet.allowSectorInvasion) {
+                    if (planet.campaignRules.sectorInvasion) {
                         for (Sector enemy : sec.near()) {
                             if (enemy.hasEnemyBase()) {
                                 planets.drawArc(planet, enemy.tile.v, sec.tile.v,
@@ -280,15 +547,81 @@ public class SCPlanetDialog extends PlanetDialog {
                                     Color.gray.write(Tmp.c2).a(state.uiAlpha),
                                     Pal.accent.write(Tmp.c3).a(state.uiAlpha), 0.4f, 90f, 25);
                         }
-                    }
-                    // exports
-                    if (selected.info.destination == sec && selected.info.anyExports()) {
-                        planets.drawArc(planet, selected.tile.v, sec.tile.v, Pal.place.write(Tmp.c2).a(state.uiAlpha),
-                                Pal.accent.write(Tmp.c3).a(state.uiAlpha), 0.4f, 90f, 25);
+                        // exports
+                        if (selected.info.destination == sec && selected.info.anyExports()) {
+                            planets.drawArc(planet, selected.tile.v, sec.tile.v,
+                                    Pal.place.write(Tmp.c2).a(state.uiAlpha), Pal.accent.write(Tmp.c3).a(state.uiAlpha),
+                                    0.4f, 90f, 25);
+                        }
                     }
                 }
             }
         }
+
+    }
+
+    @Override
+    public void renderProjections(Planet planet) {
+        float iw = 48f / 4f;
+
+        for (Sector sec : planet.sectors) {
+            if (sec != hovered) {
+                var preficon = sec.icon();
+                var icon = sec.isAttacked() ? Fonts.getLargeIcon("warning")
+                        : !sec.hasBase() && sec.preset != null && sec.preset.unlocked() && preficon == null
+                                ? Fonts.getLargeIcon("terrain")
+                                : sec.preset != null && sec.preset.requireUnlock && sec.preset.locked()
+                                        && sec.preset.techNode != null
+                                        && (sec.preset.techNode.parent == null
+                                                || !sec.preset.techNode.parent.content.locked())
+                                                        ? Fonts.getLargeIcon("lock")
+                                                        : preficon;
+                var color = sec.preset != null && sec.preset.requireUnlock && !sec.hasBase() ? Team.derelict.color
+                        : Team.sharded.color;
+
+                if (icon != null) {
+                    planets.drawPlane(sec, () -> {
+                        // use white for content icons
+                        Draw.color(preficon == icon && sec.info.contentIcon != null ? Color.white : color,
+                                state.uiAlpha);
+                        Draw.rect(icon, 0, 0, iw, iw * icon.height / icon.width);
+                    });
+                }
+            }
+        }
+
+        Draw.reset();
+
+        if (hovered != null && state.uiAlpha > 0.01f) {
+            planets.drawPlane(hovered, () -> {
+                Draw.color(hovered.isAttacked() ? Pal.remove : Color.white, Pal.accent, Mathf.absin(5f, 1f));
+                Draw.alpha(state.uiAlpha);
+
+                var icon = hovered.locked() && !canSelect(hovered) ? Fonts.getLargeIcon("lock")
+                        : hovered.isAttacked() ? Fonts.getLargeIcon("warning") : hovered.icon();
+
+                if (icon != null) {
+                    Draw.rect(icon, 0, 0, iw, iw * icon.height / icon.width);
+                }
+
+                Draw.reset();
+            });
+        }
+
+        Draw.reset();
+    }
+
+    boolean selectable(Planet planet) {
+        // TODO what if any sector is selectable?
+        // TODO launch criteria - which planets can be launched to? Where should this be
+        // defined? Should planets even be selectable?
+        if (mode == select)
+            return planet == state.planet;
+        if (mode == planetLaunch)
+            return launchSector != null && (launchCandidates.contains(planet)
+                    || (planet == launchSector.planet && planet.allowSelfSectorLaunch));
+        return (planet.alwaysUnlocked && planet.isLandable()) || planet.sectors.contains(Sector::hasBase)
+                || debugSelect;
     }
 
     void setup() {
@@ -329,9 +662,8 @@ public class SCPlanetDialog extends PlanetDialog {
 
                     @Override
                     public void act(float delta) {
-                        if (scene.getDialog() == SCPlanetDialog.this
-                                && !scene.hit(input.mouseX(), input.mouseY(), true)
-                                        .isDescendantOf(e -> e instanceof ScrollPane)) {
+                        if (scene.getDialog() == SCPlanetDialog.this && (scene.getHoverElement() == null
+                                || !scene.getHoverElement().isDescendantOf(e -> e instanceof ScrollPane))) {
                             scene.setScrollFocus(SCPlanetDialog.this);
                         }
 
@@ -347,7 +679,9 @@ public class SCPlanetDialog extends PlanetDialog {
                 new Table(t -> {
                     t.touchable = Touchable.disabled;
                     t.top();
-                    t.label(() -> mode == select ? "@sectors.select" : "").style(Styles.outlineLabel).color(Pal.accent);
+                    t.label(() -> mode == select ? "@sectors.select"
+                            : mode == planetLaunch ? "@sectors.launchselect" : "").style(Styles.outlineLabel)
+                            .color(Pal.accent);
                 }),
                 buttons,
 
@@ -356,6 +690,11 @@ public class SCPlanetDialog extends PlanetDialog {
                     t.top().left();
                     ScrollPane pane = new ScrollPane(null, Styles.smallPane);
                     t.add(pane).colspan(2).row();
+                    t.button("@campaign.difficulty", Icon.bookSmall, () -> {
+                        campaignRules.show(state.planet);
+                    }).margin(12f).size(208f, 40f).padTop(12f)
+                            .visible(() -> state.planet.allowCampaignRules && mode != planetLaunch).row();
+                    t.add().height(64f); // padding for close button
                     Table starsTable = new Table(Styles.black);
                     pane.setWidget(starsTable);
                     pane.setScrollingDisabled(true, false);
@@ -379,15 +718,7 @@ public class SCPlanetDialog extends PlanetDialog {
                                         Icon.icons.get(planet.icon + "Small",
                                                 Icon.icons.get(planet.icon, Icon.commandRallySmall)),
                                         Styles.flatTogglet, () -> {
-                                            selected = null;
-                                            launchSector = null;
-                                            if (state.planet != planet) {
-                                                newPresets.clear();
-                                                state.planet = planet;
-
-                                                rebuildExpand();
-                                            }
-                                            settings.put("lastplanet", planet.name);
+                                            viewPlanet(planet, false);
                                         }).width(200).height(40).update(bb -> bb.setChecked(state.planet == planet))
                                         .with(w -> w.marginLeft(10f)).get();
                                 planetButton.getChildren().get(1).setColor(planet.iconColor);
@@ -398,519 +729,14 @@ public class SCPlanetDialog extends PlanetDialog {
                     }
                 }).visible(() -> mode != select),
 
-                new Table(c -> {
-                    expandTable = c;
-                })).grow();
-
+                new Table(c -> expandTable = c)).grow();
         rebuildExpand();
     }
 
-    @Override
-    public void renderProjections(Planet planet) {
-        float iw = 48f / 4f;
-
-        for (Sector sec : planet.sectors) {
-            if (sec != hovered) {
-                var preficon = sec.icon();
-                var icon = sec.isAttacked() ? Fonts.getLargeIcon("warning")
-                        : !sec.hasBase() && sec.preset != null && sec.preset.unlocked() && preficon == null
-                                ? Fonts.getLargeIcon("terrain")
-                                : sec.preset != null && sec.preset.locked() && sec.preset.techNode != null
-                                        && !sec.preset.techNode.parent.content.locked() ? Fonts.getLargeIcon("lock")
-                                                : preficon;
-                var color = sec.preset != null && !sec.hasBase() ? Team.derelict.color : Team.sharded.color;
-
-                if (icon != null) {
-                    planets.drawPlane(sec, () -> {
-                        // use white for content icons
-                        Draw.color(preficon == icon && sec.info.contentIcon != null ? Color.white : color,
-                                state.uiAlpha);
-                        Draw.rect(icon, 0, 0, iw, iw * icon.height / icon.width);
-                    });
-                }
-            }
-        }
-
-        Draw.reset();
-
-        if (hovered != null && state.uiAlpha > 0.01f) {
-            planets.drawPlane(hovered, () -> {
-                Draw.color(hovered.isAttacked() ? Pal.remove : Color.white, Pal.accent, Mathf.absin(5f, 1f));
-                Draw.alpha(state.uiAlpha);
-
-                var icon = hovered.locked() && !canSelect(hovered) ? Fonts.getLargeIcon("lock")
-                        : hovered.isAttacked() ? Fonts.getLargeIcon("warning") : hovered.icon();
-
-                if (icon != null) {
-                    Draw.rect(icon, 0, 0, iw, iw * icon.height / icon.width);
-                }
-
-                Draw.reset();
-            });
-        }
-
-        Draw.reset();
-    }
-
-    @Override
-    public void act(float delta) {
-        super.act(delta);
-
-        // update lerp
-        if (state.otherCamPos != null) {
-            state.otherCamAlpha = Mathf.lerpDelta(state.otherCamAlpha, 1f, 0.05f);
-            state.camPos.set(0f, camLength, 0.1f);
-
-            if (Mathf.equal(state.otherCamAlpha, 1f, 0.01f)) {
-                // TODO change zoom too
-                state.camPos.set(Tmp.v31.set(state.otherCamPos).lerp(state.planet.position, state.otherCamAlpha)
-                        .add(state.camPos).sub(state.planet.position));
-
-                state.otherCamPos = null;
-                // announce new sector
-                newPresets.add(state.planet.sectors.get(state.planet.startSector));
-
-            }
-        }
-
-        if (hovered != null && !mobile && state.planet.hasGrid()) {
-            addChild(hoverLabel);
-            hoverLabel.toFront();
-            hoverLabel.touchable = Touchable.disabled;
-            hoverLabel.color.a = state.uiAlpha;
-
-            Vec3 pos = planets.cam
-                    .project(Tmp.v31.set(hovered.tile.v).setLength(PlanetRenderer.outlineRad * state.planet.radius)
-                            .rotate(Vec3.Y, -state.planet.getRotation()).add(state.planet.position));
-            hoverLabel.setPosition(pos.x - Core.scene.marginLeft, pos.y - Core.scene.marginBottom, Align.center);
-
-            hoverLabel.getText().setLength(0);
-            if (hovered != null) {
-                StringBuilder tx = hoverLabel.getText();
-                if (!canSelect(hovered)) {
-                    if (mode == planetLaunch) {
-                        tx.append("[gray]").append(Iconc.cancel);
-                    } else {
-                        tx.append("[gray]").append(Iconc.lock).append(" ").append(Core.bundle.get("locked"));
-                    }
-                } else {
-                    tx.append("[accent][[ [white]").append(hovered.name()).append("[accent] ]");
-                }
-            }
-            hoverLabel.invalidateHierarchy();
-        } else {
-            hoverLabel.remove();
-        }
-
-        if (launching && selected != null) {
-            lookAt(selected, 0.1f);
-        }
-
-        if (showing()) {
-            Sector to = newPresets.peek();
-
-            presetShow += Time.delta;
-
-            lookAt(to, 0.11f);
-            zoom = 0.75f;
-
-            if (presetShow >= 20f && !showed && newPresets.size > 1) {
-                showed = true;
-                ui.announce(Iconc.lockOpen + " [accent]" + to.name(), 2f);
-            }
-
-            if (presetShow > sectorShowDuration) {
-                newPresets.pop();
-                showed = false;
-                presetShow = 0f;
-            }
-        }
-
-        if (state.planet.hasGrid()) {
-            hovered = Core.scene.getDialog() == this
-                    ? state.planet.getSector(planets.cam.getMouseRay(), PlanetRenderer.outlineRad * state.planet.radius)
-                    : null;
-        } else if (state.planet.isLandable()) {
-            boolean wasNull = selected == null;
-            // always have the first sector selected.
-            // TODO better support for multiple sectors in gridless planets?
-            hovered = selected = state.planet.sectors.first();
-
-            // autoshow
-            if (wasNull) {
-                updateSelected();
-            }
-        } else {
-            hovered = selected = null;
-        }
-
-        state.zoom = Mathf.lerpDelta(state.zoom, zoom, 0.4f);
-        state.uiAlpha = Mathf.lerpDelta(state.uiAlpha, Mathf.num(state.zoom < 1.9f), 0.1f);
-    }
-
-    void updateSelected() {
-        Sector sector = selected;
-        Table stable = sectorTop;
-
-        if (sector == null) {
-            stable.clear();
-            stable.visible = false;
-            return;
-        }
-        stable.visible = true;
-
-        float x = stable.getX(Align.center), y = stable.getY(Align.center);
-        stable.clear();
-        stable.background(Styles.black6);
-
-        stable.table(title -> {
-            title.add("[accent]" + sector.name()).padLeft(3);
-            if (sector.preset == null) {
-                title.add().growX();
-
-                title.button(Icon.pencilSmall, Styles.clearNonei, () -> {
-                    ui.showTextInput("@sectors.rename", "@name", 20, sector.name(), v -> {
-                        sector.setName(v);
-                        updateSelected();
-                        rebuildList();
-                    });
-                }).size(40f).padLeft(4);
-            }
-
-            var icon = sector.info.contentIcon != null ? new TextureRegionDrawable(sector.info.contentIcon.uiIcon)
-                    : Icon.icons.get(sector.info.icon + "Small");
-
-            title.button(icon == null ? Icon.noneSmall : icon, Styles.clearNonei, iconSmall, () -> {
-                new Dialog("") {
-                    {
-                        closeOnBack();
-                        setFillParent(true);
-
-                        Runnable refresh = () -> {
-                            sector.saveInfo();
-                            hide();
-                            updateSelected();
-                            rebuildList();
-                        };
-
-                        cont.pane(t -> {
-                            resized(true, () -> {
-                                t.clearChildren();
-                                t.marginRight(19f);
-                                t.defaults().size(48f);
-
-                                t.button(Icon.none, Styles.squareTogglei, () -> {
-                                    sector.info.icon = null;
-                                    sector.info.contentIcon = null;
-                                    refresh.run();
-                                }).checked(sector.info.icon == null && sector.info.contentIcon == null);
-
-                                int cols = (int) Math.min(20, Core.graphics.getWidth() / Scl.scl(52f));
-
-                                int i = 1;
-                                for (var key : defaultIcons) {
-                                    var value = Icon.icons.get(key);
-
-                                    t.button(value, Styles.squareTogglei, () -> {
-                                        sector.info.icon = key;
-                                        sector.info.contentIcon = null;
-                                        refresh.run();
-                                    }).checked(key.equals(sector.info.icon));
-
-                                    if (++i % cols == 0)
-                                        t.row();
-                                }
-
-                                for (ContentType ctype : defaultContentIcons) {
-                                    t.row();
-                                    t.image().colspan(cols).growX().width(Float.NEGATIVE_INFINITY).height(3f)
-                                            .color(Pal.accent);
-                                    t.row();
-
-                                    i = 0;
-                                    for (UnlockableContent u : content.getBy(ctype).<UnlockableContent>as()) {
-                                        if (!u.isHidden() && u.unlocked()) {
-                                            t.button(new TextureRegionDrawable(u.uiIcon), Styles.squareTogglei, iconMed,
-                                                    () -> {
-                                                        sector.info.icon = null;
-                                                        sector.info.contentIcon = u;
-                                                        refresh.run();
-                                                    }).checked(sector.info.contentIcon == u);
-
-                                            if (++i % cols == 0)
-                                                t.row();
-                                        }
-                                    }
-                                }
-                            });
-                        });
-                        buttons.button("@back", Icon.left, this::hide).size(210f, 64f);
-                    }
-                }.show();
-            }).size(40f).tooltip("@sector.changeicon");
-        }).row();
-
-        stable.image().color(Pal.accent).fillX().height(3f).pad(3f).row();
-
-        boolean locked = sector.preset != null && sector.preset.locked() && !sector.hasBase()
-                && sector.preset.techNode != null;
-
-        if (locked) {
-            stable.table(r -> {
-                r.add("@complete").colspan(2).left();
-                r.row();
-                for (Objectives.Objective o : sector.preset.techNode.objectives) {
-                    if (o.complete())
-                        continue;
-
-                    r.add("> " + o.display()).color(Color.lightGray).left();
-                    r.image(o.complete() ? Icon.ok : Icon.cancel, o.complete() ? Color.lightGray : Color.scarlet)
-                            .padLeft(3);
-                    r.row();
-                }
-            }).row();
-        } else if (!sector.hasBase()) {
-            float step = 0.25f;
-            String color = Tmp.c1.set(Color.white).lerp(Color.scarlet, Mathf.round(sector.threat, step)).toString();
-            String[] threats = SCVars.threats;
-            int index = Math.min((int) (sector.threat / step), threats.length - 1);
-            String out = "[#" + color + "]" + Core.bundle.get("threat." + threats[index]);
-            // System.out.println(out + " " + sector.threat);
-            stable.add(Core.bundle.get("sectors.threat") + " [accent]" + out).row();
-        }
-
-        if (sector.isAttacked()) {
-            addSurvivedInfo(sector, stable, false);
-        } else if (sector.hasBase() && sector.planet.allowSectorInvasion
-                && sector.near().contains(Sector::hasEnemyBase)) {
-            stable.add("@sectors.vulnerable");
-            stable.row();
-        } else if (!sector.hasBase() && sector.hasEnemyBase()) {
-            stable.add("@sectors.enemybase");
-            stable.row();
-        }
-
-        if (sector.save != null && sector.info.resources.any()) {
-            stable.table(t -> {
-                t.add("@sectors.resources").padRight(4);
-                for (UnlockableContent c : sector.info.resources) {
-                    if (c == null)
-                        continue; // apparently this is possible.
-                    t.image(c.uiIcon).padRight(3).scaling(Scaling.fit).size(iconSmall);
-                }
-            }).padLeft(10f).fillX().row();
-        }
-
-        stable.row();
-
-        if (sector.hasBase()) {
-            stable.button("@stats", Icon.info, Styles.cleart, () -> showStats(sector)).height(40f).fillX().row();
-        }
-
-        if ((sector.hasBase() && mode == look) || canSelect(sector)
-                || (sector.preset != null && sector.preset.alwaysUnlocked) || debugSelect) {
-            stable.button(
-                    mode == select ? "@sectors.select"
-                            : sector.isBeingPlayed() ? "@sectors.resume"
-                                    : sector.hasBase() ? "@sectors.go" : locked ? "@locked" : "@sectors.launch",
-                    locked ? Icon.lock : Icon.play, this::playSelected).growX().height(54f).minWidth(170f).padTop(4)
-                    .disabled(locked);
-        }
-
-        stable.pack();
-        stable.setPosition(x, y, Align.center);
-
-        stable.act(0f);
-    }
-
-    public boolean canSelect(Sector sector) {
-        if (mode == select)
-            return sector.hasBase() && launchSector != null /* && sector.planet == launchSector.planet */;
-        // cannot launch to existing sector w/ accelerator TODO test
-        if (mode == planetLaunch)
-            return sector.id == sector.planet.startSector;
-        if (sector.hasBase() || sector.id == sector.planet.startSector)
-            return true;
-        // preset sectors can only be selected once unlocked
-        if (sector.preset != null) {
-            TechTree.TechNode node = sector.preset.techNode;
-            return node == null || node.parent == null || (node.parent.content.unlocked()
-                    && (!(node.parent.content instanceof SectorPreset preset) || preset.sector.hasBase()));
-        }
-
-        return sector.planet.generator != null ?
-        // use planet impl when possible
-                sector.planet.generator.allowLanding(sector)
-                : sector.hasBase() || sector.near().contains(Sector::hasBase); // near an occupied sector
-    }
-
-    public Sector findLauncher(Sector to) {
-        Sector launchSector = this.launchSector != null && this.launchSector.planet == to.planet
-                && this.launchSector.hasBase() ? this.launchSector : null;
-        // directly nearby.
-        if (to.near().contains(launchSector))
-            return launchSector;
-
-        Sector launchFrom = launchSector;
-        if (launchFrom == null || (to.preset == null && !to.near().contains(launchSector))) {
-            // TODO pick one with the most resources
-            launchFrom = to.near().find(Sector::hasBase);
-            if (launchFrom == null && to.preset != null) {
-                if (launchSector != null)
-                    return launchSector;
-                launchFrom = state.planet.sectors.min(s -> !s.hasBase() ? Float.MAX_VALUE : s.tile.v.dst2(to.tile.v));
-                if (!launchFrom.hasBase())
-                    launchFrom = null;
-            }
-        }
-
-        return launchFrom;
-    }
-
-    public boolean showing() {
-        return newPresets.any();
-    }
-
-    public void playSelected() {
-        if (selected == null)
-            return;
-
-        Sector sector = selected;
-
-        if (sector.isBeingPlayed()) {
-            // already at this sector
-            hide();
-            return;
-        }
-
-        if (sector.preset != null && sector.preset.locked() && sector.preset.techNode != null && !sector.hasBase()) {
-            return;
-        }
-
-        // make sure there are no under-attack sectors (other than this one)
-        for (Planet planet : content.planets()) {
-            if (!planet.allowWaveSimulation && !debugSelect
-                    && planet.allowWaveSimulation == sector.planet.allowWaveSimulation) {
-                // if there are two or more attacked sectors... something went wrong, don't show
-                // the dialog to prevent softlock
-                Sector attacked = planet.sectors.find(s -> s.isAttacked() && s != sector);
-                if (attacked != null && planet.sectors.count(s -> s.isAttacked()) < 2) {
-                    BaseDialog dialog = new BaseDialog("@sector.noswitch.title");
-                    dialog.cont.add(bundle.format("sector.noswitch", attacked.name(), attacked.planet.localizedName))
-                            .width(400f).labelAlign(Align.center).center().wrap();
-                    dialog.addCloseButton();
-                    dialog.buttons.button("@sector.view", Icon.eyeSmall, () -> {
-                        dialog.hide();
-                        lookAt(attacked);
-                        selectSector(attacked);
-                    });
-                    dialog.show();
-
-                    return;
-                }
-            }
-        }
-
-        boolean shouldHide = true;
-
-        // save before launch.
-        if (control.saves.getCurrent() != null && Vars.state.isGame() && mode != select) {
-            try {
-                control.saves.getCurrent().save();
-            } catch (Throwable e) {
-                e.printStackTrace();
-                ui.showException("[accent]" + Core.bundle.get("savefail"), e);
-            }
-        }
-
-        if (mode == look && !sector.hasBase()) {
-            shouldHide = false;
-            Sector from = findLauncher(sector);
-
-            if (from == null) {
-                // clear loadout information, so only the basic loadout gets used
-                universe.clearLoadoutInfo();
-                // free launch.
-                control.playSector(sector);
-            } else {
-                CoreBlock block = sector.allowLaunchSchematics()
-                        ? (from.info.bestCoreType instanceof CoreBlock b ? b : (CoreBlock) from.planet.defaultCore)
-                        : (CoreBlock) from.planet.defaultCore;
-
-                loadouts.show(block, from, sector, () -> {
-                    var loadout = universe.getLastLoadout();
-                    var schemCore = loadout.findCore();
-                    from.removeItems(loadout.requirements());
-                    from.removeItems(universe.getLaunchResources());
-
-                    Events.fire(new EventType.SectorLaunchLoadoutEvent(sector, from, loadout));
-                    CoreBuild core = player.team().core();
-                    if (settings.getBool("skipcoreanimation")) {
-                        // just... go there
-                        control.playSector(from, sector);
-                        // hide only after load screen is shown
-                        Time.runTask(8f, this::hide);
-                    } else {
-                        // hide immediately so launch sector is visible
-                        hide();
-
-                        // allow planet dialog to finish hiding before actually launching
-                        Time.runTask(5f, () -> {
-                            Runnable doLaunch = () -> {
-                                renderer.showLaunch(core);
-                                // run with less delay, as the loading animation is delayed by several frames
-                                Time.runTask(core.launchDuration() - 8f, () -> control.playSector(from, sector));
-                            };
-
-                            // load launchFrom sector right before launching so animation is correct
-                            if (!from.isBeingPlayed()) {
-                                // run *after* the loading animation is done
-                                Time.runTask(9f, doLaunch);
-                                control.playSector(from);
-                            } else {
-                                doLaunch.run();
-                            }
-                        });
-                    }
-                });
-            }
-        } else if (mode == select) {
-            listener.get(sector);
-        } else if (mode == planetLaunch) { // TODO make sure it doesn't have a base already.
-
-            // TODO animation
-            // schematic selection and cost handled by listener
-            listener.get(sector);
-            // unlock right before launch
-            sector.planet.unlockedOnLand.each(UnlockableContent::unlock);
-            control.playSector(sector);
-        } else {
-            // sector should have base here
-            control.playSector(sector);
-        }
-
-        if (shouldHide)
-            hide();
-    }
-
-    public boolean selectable(Planet planet) {
-        // TODO what if any sector is selectable?
-        // TODO launch criteria - which planets can be launched to? Where should this be
-        // defined? Should planets even be selectable?
-        // if (Version.build == -1) return true ;
-        if (mode == select)
-            return /* planet == state.planet */true;
-        if (mode == planetLaunch)
-            return launchSector != null && planet != launchSector.planet
-                    && launchSector.planet.launchCandidates.contains(planet);
-        return (planet.alwaysUnlocked && planet.isLandable()) || planet.sectors.contains(Sector::hasBase)
-                || debugSelect;
-    }
-
-    public void rebuildExpand() {
+    void rebuildExpand() {
         Table c = expandTable;
         c.clear();
-        c.visible(() -> !(graphics.isPortrait() && mobile));
+        c.visible(() -> !(graphics.isPortrait() && mobile) && mode != planetLaunch);
         if (state.planet.sectors.contains(Sector::hasBase)) {
             int attacked = state.planet.sectors.count(Sector::isAttacked);
 
@@ -937,7 +763,7 @@ public class SCPlanetDialog extends PlanetDialog {
         }
     }
 
-    public void rebuildList() {
+    void rebuildList() {
         if (notifs == null)
             return;
 
@@ -1007,28 +833,200 @@ public class SCPlanetDialog extends PlanetDialog {
         }).grow().scrollX(false);
     }
 
-    public void addSurvivedInfo(Sector sector, Table table, boolean wrap) {
-        if (!wrap) {
-            table.add(sector.planet.allowWaveSimulation
-                    ? Core.bundle.format("sectors.underattack", (int) (sector.info.damage * 100))
-                    : "@sectors.underattack.nodamage").wrapLabel(wrap).row();
+    public Planet getHoverPlanet(float mouseX, float mouseY) {
+        // do not hover over things indefinitely
+        Planet hoverPlanet = null;
+        // get nearest planet (DO NOT SELECT THROUGH selected planet)
+        float nearest = Float.POSITIVE_INFINITY;
+
+        for (Planet planet : content.planets()) {
+            Ray r = planets.cam.getPickRay(mouseX, mouseY);
+
+            // get planet we're hovering over
+            Vec3 intersect = planet.intersect(r, outlineRad * planet.radius);
+
+            if (intersect != null && selectable(planet) && intersect.dst(r.origin) < nearest) {
+                nearest = intersect.dst(r.origin);
+                hoverPlanet = planet;
+            }
         }
 
-        if (sector.planet.allowWaveSimulation && sector.info.wavesSurvived >= 0
-                && sector.info.wavesSurvived - sector.info.wavesPassed >= 0 && !sector.isBeingPlayed()) {
-            int toCapture = sector.info.attack || sector.info.winWave <= 1 ? -1
-                    : sector.info.winWave - (sector.info.wave + sector.info.wavesPassed);
-            boolean plus = (sector.info.wavesSurvived - sector.info.wavesPassed) >= SectorDamage.maxRetWave - 1;
-            table.add(Core.bundle.format("sectors.survives",
-                    Math.min(sector.info.wavesSurvived - sector.info.wavesPassed, toCapture <= 0 ? 200 : toCapture) +
-                            (plus ? "+" : "") + (toCapture < 0 ? "" : "/" + toCapture)))
-                    .wrapLabel(wrap).row();
+        return hoverPlanet;
+    }
+
+    public void viewPlanet(Planet planet, boolean pan) {
+        if (state.planet != planet) {
+            selected = null;
+            if (pan) {
+                state.otherCamPos = state.planet.position;
+                state.otherCamAlpha = 0;
+            }
+            newPresets.clear();
+            state.planet = planet;
+
+            selected = null;
+            updateSelected();
+            rebuildExpand();
+            settings.put("lastplanet", planet.name);
         }
     }
 
-    public void showStats(Sector sector) {
-        BaseDialog dialog = new BaseDialog(sector.name());
+    @Override
+    public void draw() {
+        boolean doBuffer = color.a < 0.99f;
 
+        if (doBuffer) {
+            buffer.resize(Core.graphics.getWidth(), Core.graphics.getHeight());
+            buffer.begin(Color.clear);
+        }
+
+        super.draw();
+
+        if (doBuffer) {
+            buffer.end();
+
+            Draw.color(color);
+            Draw.rect(Draw.wrap(buffer.getTexture()), width / 2f, height / 2f, width, -height);
+            Draw.color();
+        }
+    }
+
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+
+        // update lerp
+        if (state.otherCamPos != null) {
+            state.otherCamAlpha = Mathf.lerpDelta(state.otherCamAlpha, 1f, 0.05f);
+            state.camPos.set(0f, camLength, 0.1f);
+
+            if (Mathf.equal(state.otherCamAlpha, 1f, 0.01f)) {
+                // TODO change zoom too
+                state.camPos.set(Tmp.v31.set(state.otherCamPos).slerp(state.planet.position, state.otherCamAlpha)
+                        .add(state.camPos).sub(state.planet.position));
+
+                state.otherCamPos = null;
+                // announce new sector
+                if (!state.planet.sectors.isEmpty()) {
+                    newPresets.add(state.planet.sectors.get(state.planet.startSector));
+                }
+
+            }
+        }
+
+        // fade in sector dialog after panning
+        if (sectorTop != null && state.otherCamPos == null) {
+            sectorTop.color.a = Mathf.lerpDelta(sectorTop.color.a, 1f, 0.1f);
+        }
+
+        if (hovered != null && !mobile && state.planet.hasGrid()) {
+            addChild(hoverLabel);
+            hoverLabel.toFront();
+            hoverLabel.touchable = Touchable.disabled;
+            hoverLabel.color.a = state.uiAlpha;
+
+            Vec3 pos = hovered.planet.project(hovered, planets.cam, Tmp.v31);
+            hoverLabel.setPosition(pos.x - Core.scene.marginLeft, pos.y - Core.scene.marginBottom, Align.center);
+
+            hoverLabel.getText().setLength(0);
+            if (hovered != null) {
+                StringBuilder tx = hoverLabel.getText();
+                if (!canSelect(hovered)) {
+                    if (mode == planetLaunch) {
+                        tx.append("[gray]").append(Iconc.cancel);
+                    } else {
+                        tx.append("[gray]").append(Iconc.lock).append(" ").append(Core.bundle.get("locked"));
+                    }
+                } else {
+                    tx.append("[accent][[ [white]").append(hovered.name()).append("[accent] ]");
+                }
+            }
+            hoverLabel.invalidateHierarchy();
+        } else {
+            hoverLabel.remove();
+        }
+
+        if (launching && selected != null) {
+            lookAt(selected, 0.1f);
+        }
+
+        if (showing()) {
+            Sector to = newPresets.peek();
+
+            presetShow += Time.delta;
+
+            lookAt(to, 0.11f);
+            zoom = 0.75f;
+
+            if (presetShow >= 20f && !showed && newPresets.size > 1) {
+                showed = true;
+                ui.announce(Iconc.lockOpen + " [accent]" + to.name(), 2f);
+            }
+
+            if (presetShow > sectorShowDuration) {
+                newPresets.pop();
+                showed = false;
+                presetShow = 0f;
+            }
+        }
+
+        if (state.planet.hasGrid()) {
+            hovered = Core.scene.getDialog() == this
+                    ? state.planet.getSector(planets.cam.getMouseRay(), PlanetRenderer.outlineRad * state.planet.radius)
+                    : null;
+        } else if (state.planet.isLandable()) {
+            boolean wasNull = selected == null;
+            // always have the first sector selected.
+            // TODO better support for multiple sectors in gridless planets?
+            hovered = selected = state.planet.sectors.first();
+
+            // autoshow
+            if (wasNull) {
+                updateSelected();
+            }
+        } else {
+            hovered = selected = null;
+        }
+
+        state.zoom = Mathf.lerpDelta(state.zoom, zoom, 0.4f);
+        state.uiAlpha = Mathf.lerpDelta(state.uiAlpha, Mathf.num(state.zoom < 1.9f), 0.1f);
+    }
+
+    void displayItems(Table c, float scl, ObjectMap<Item, ExportStat> stats, String name) {
+        displayItems(c, scl, stats, name, t -> {
+        });
+    }
+
+    void displayItems(Table c, float scl, ObjectMap<Item, ExportStat> stats, String name, Cons<Table> builder) {
+        Table t = new Table().left();
+
+        int i = 0;
+        for (var item : content.items()) {
+            var stat = stats.get(item);
+            if (stat == null)
+                continue;
+            int total = (int) (stat.mean * 60 * scl);
+            if (total > 1) {
+                t.image(item.uiIcon).padRight(3);
+                t.add(UI.formatAmount(total) + " " + Core.bundle.get("unit.perminute")).color(Color.lightGray)
+                        .padRight(3);
+                if (++i % 3 == 0) {
+                    t.row();
+                }
+            }
+        }
+
+        if (t.getChildren().any()) {
+            c.defaults().left();
+            c.add(name).row();
+            builder.get(c);
+            c.add(t).padLeft(10f).row();
+        }
+    }
+
+    void showStats(Sector sector) {
+        BaseDialog dialog = new BaseDialog(sector.name());
+        SCSector ss = new SCSector(sector.planet, sector.tile);
         dialog.cont.pane(c -> {
             c.defaults().padBottom(5);
 
@@ -1044,7 +1042,7 @@ public class SCPlanetDialog extends PlanetDialog {
             }
 
             if (sector.isAttacked() || !sector.hasBase()) {
-                float step = 0.25f;
+                float step = 0.11f;
                 String color = Tmp.c1.set(Color.white).lerp(Color.scarlet, Mathf.round(sector.threat, step)).toString();
                 String[] threats = SCVars.threats;
                 int index = Math.min((int) (sector.threat / step), threats.length - 1);
@@ -1077,7 +1075,7 @@ public class SCPlanetDialog extends PlanetDialog {
 
             // import
             if (sector.hasBase()) {
-                displayItems(c, 1f, sector.info.importStats(sector.planet), "@sectors.import", t -> {
+                displayItems(c, 1f, sector.info.imports, "@sectors.import", t -> {
                     sector.info.eachImport(sector.planet, other -> {
                         String ic = other.iconChar();
                         t.add(Iconc.rightOpen + " " + (ic == null || ic.isEmpty() ? "" : ic + " ") + other.name())
@@ -1119,49 +1117,353 @@ public class SCPlanetDialog extends PlanetDialog {
         dialog.show();
     }
 
-    public void displayItems(Table c, float scl, ObjectMap<Item, SectorInfo.ExportStat> stats, String name) {
-        displayItems(c, scl, stats, name, t -> {
+    public void abandonSectorConfirm(Sector sector, Runnable listener) {
+        ui.showConfirm("@sector.abandon.confirm", () -> {
+            if (listener != null)
+                listener.run();
+
+            if (sector.isBeingPlayed()) {
+                hide();
+                // after dialog is hidden
+                Time.runTask(7f, () -> {
+                    // force game over in a more dramatic fashion
+                    for (var core : player.team().cores().copy()) {
+                        core.kill();
+                    }
+                });
+            } else {
+                if (sector.save != null) {
+                    sector.save.delete();
+                }
+                sector.save = null;
+            }
+            updateSelected();
+            rebuildList();
         });
     }
 
-    public void displayItems(Table c, float scl, ObjectMap<Item, SectorInfo.ExportStat> stats, String name,
-            Cons<Table> builder) {
-        Table t = new Table().left();
+    void addSurvivedInfo(Sector sector, Table table, boolean wrap) {
+        if (!wrap) {
+            table.add(sector.planet.allowWaveSimulation
+                    ? Core.bundle.format("sectors.underattack", (int) (sector.info.damage * 100))
+                    : "@sectors.underattack.nodamage").wrapLabel(wrap).row();
+        }
 
-        int i = 0;
-        for (var item : content.items()) {
-            var stat = stats.get(item);
-            if (stat == null)
-                continue;
-            int total = (int) (stat.mean * 60 * scl);
-            if (total > 1) {
-                t.image(item.uiIcon).padRight(3);
-                t.add(UI.formatAmount(total) + " " + Core.bundle.get("unit.perminute")).color(Color.lightGray)
-                        .padRight(3);
-                if (++i % 3 == 0) {
-                    t.row();
+        if (sector.planet.allowWaveSimulation && sector.info.wavesSurvived >= 0
+                && sector.info.wavesSurvived - sector.info.wavesPassed >= 0 && !sector.isBeingPlayed()) {
+            int toCapture = sector.info.attack || sector.info.winWave <= 1 ? -1
+                    : sector.info.winWave - (sector.info.wave + sector.info.wavesPassed);
+            boolean plus = (sector.info.wavesSurvived - sector.info.wavesPassed) >= SectorDamage.maxRetWave - 1;
+            table.add(Core.bundle.format("sectors.survives",
+                    Math.min(sector.info.wavesSurvived - sector.info.wavesPassed, toCapture <= 0 ? 200 : toCapture) +
+                            (plus ? "+" : "") + (toCapture < 0 ? "" : "/" + toCapture)))
+                    .wrapLabel(wrap).row();
+        }
+    }
+
+    void selectSector(Sector sector) {
+        selected = sector;
+        updateSelected();
+    }
+
+    void updateSelected() {
+        Sector sector = selected;
+        Table stable = sectorTop;
+
+        if (sector == null) {
+            stable.clear();
+            stable.visible = false;
+            return;
+        }
+        stable.visible = true;
+
+        float x = stable.getX(Align.center), y = stable.getY(Align.center);
+        stable.clear();
+        stable.background(Styles.black6);
+
+        stable.table(title -> {
+            title.add("[accent]" + sector.name()).padLeft(3);
+            if (sector.preset == null) {
+                title.add().growX();
+
+                title.button(Icon.pencilSmall, Styles.clearNonei, () -> {
+                    ui.showTextInput("@sectors.rename", "@name", 20, sector.name(), v -> {
+                        sector.setName(v);
+                        updateSelected();
+                        rebuildList();
+                    });
+                }).size(40f).padLeft(4);
+            }
+
+            var icon = sector.info.contentIcon != null ? new TextureRegionDrawable(sector.info.contentIcon.uiIcon)
+                    : Icon.icons.get(sector.info.icon + "Small");
+
+            title.button(icon == null ? Icon.noneSmall : icon, Styles.clearNonei, iconSmall, () -> {
+                // TODO use IconSelectDialog
+                new Dialog("") {
+                    {
+                        closeOnBack();
+                        setFillParent(true);
+
+                        Runnable refresh = () -> {
+                            sector.saveInfo();
+                            hide();
+                            updateSelected();
+                            rebuildList();
+                        };
+
+                        cont.pane(t -> {
+                            resized(true, () -> {
+                                t.clearChildren();
+                                t.marginRight(19f);
+                                t.defaults().size(48f);
+
+                                t.button(Icon.none, Styles.squareTogglei, () -> {
+                                    sector.info.icon = null;
+                                    sector.info.contentIcon = null;
+                                    refresh.run();
+                                }).checked(sector.info.icon == null && sector.info.contentIcon == null);
+
+                                int cols = (int) Math.min(20, Core.graphics.getWidth() / Scl.scl(52f));
+
+                                int i = 1;
+                                for (var key : accessibleIcons) {
+                                    var value = Icon.icons.get(key);
+
+                                    t.button(value, Styles.squareTogglei, () -> {
+                                        sector.info.icon = key;
+                                        sector.info.contentIcon = null;
+                                        refresh.run();
+                                    }).checked(key.equals(sector.info.icon));
+
+                                    if (++i % cols == 0)
+                                        t.row();
+                                }
+
+                                for (ContentType ctype : defaultContentIcons) {
+                                    t.row();
+                                    t.image().colspan(cols).growX().width(Float.NEGATIVE_INFINITY).height(3f)
+                                            .color(Pal.accent);
+                                    t.row();
+
+                                    i = 0;
+                                    for (UnlockableContent u : content.getBy(ctype).<UnlockableContent>as()) {
+                                        if (!u.isHidden() && u.unlocked()) {
+                                            t.button(new TextureRegionDrawable(u.uiIcon), Styles.squareTogglei, iconMed,
+                                                    () -> {
+                                                        sector.info.icon = null;
+                                                        sector.info.contentIcon = u;
+                                                        refresh.run();
+                                                    }).checked(sector.info.contentIcon == u);
+
+                                            if (++i % cols == 0)
+                                                t.row();
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                        buttons.button("@back", Icon.left, this::hide).size(210f, 64f);
+                    }
+                }.show();
+            }).size(40f).tooltip("@sector.changeicon");
+        }).row();
+
+        stable.image().color(Pal.accent).fillX().height(3f).pad(3f).row();
+
+        boolean locked = sector.preset != null && sector.preset.locked() && !sector.hasBase()
+                && sector.preset.techNode != null;
+
+        SCSector ss = new SCSector(sector.planet, sector.tile);
+        if (locked) {
+            stable.table(r -> {
+                r.add("@complete").colspan(2).left();
+                r.row();
+                for (Objective o : sector.preset.techNode.objectives) {
+                    if (o.complete())
+                        continue;
+
+                    r.add("> " + o.display()).color(Color.lightGray).left();
+                    r.image(o.complete() ? Icon.ok : Icon.cancel, o.complete() ? Color.lightGray : Color.scarlet)
+                            .padLeft(3);
+                    r.row();
                 }
+            }).row();
+        } else if (!sector.hasBase()) {
+                float step = 0.11f;
+                String color = Tmp.c1.set(Color.white).lerp(Color.scarlet, Mathf.round(sector.threat, step)).toString();
+                String[] threats = SCVars.threats;
+                int index = Math.min((int) (sector.threat / step), threats.length - 1);
+                String out = "[#" + color + "]" + Core.bundle.get("threat." + threats[index]);
+            Log.info(out+"   "+threats[index]+"  "+index+"  "+sector.threat+" "+threats.length);
+            stable.add(Core.bundle.get("sectors.threat") + " [accent]" + out).row();
+        }
+
+        if (sector.isAttacked()) {
+            addSurvivedInfo(sector, stable, false);
+        } else if (sector.hasBase() && sector.planet.campaignRules.sectorInvasion
+                && sector.near().contains(Sector::hasEnemyBase)) {
+            stable.add("@sectors.vulnerable");
+            stable.row();
+        } else if (!sector.hasBase() && sector.hasEnemyBase()) {
+            stable.add("@sectors.enemybase");
+            stable.row();
+        }
+
+        if (sector.save != null && sector.info.resources.any()) {
+            stable.table(t -> {
+                t.add("@sectors.resources").padRight(4);
+                for (UnlockableContent c : sector.info.resources) {
+                    if (c == null)
+                        continue; // apparently this is possible.
+                    t.image(c.uiIcon).padRight(3).scaling(Scaling.fit).size(iconSmall);
+                }
+            }).padLeft(10f).fillX().row();
+        }
+
+        stable.row();
+
+        if (sector.hasBase()) {
+            stable.button("@stats", Icon.info, Styles.cleart, () -> showStats(sector)).height(40f).fillX().row();
+        }
+
+        if ((sector.hasBase() && mode == look) || canSelect(sector)
+                || (sector.preset != null && sector.preset.alwaysUnlocked) || debugSelect) {
+            stable.button(
+                    mode == select ? "@sectors.select"
+                            : sector.isBeingPlayed() ? "@sectors.resume"
+                                    : sector.hasBase() ? "@sectors.go" : locked ? "@locked" : "@sectors.launch",
+                    locked ? Icon.lock : Icon.play, this::playSelected).growX().height(54f).minWidth(170f).padTop(4)
+                    .disabled(locked);
+        }
+
+        stable.pack();
+        stable.setPosition(x, y, Align.center);
+
+        stable.act(0f);
+    }
+
+    void playSelected() {
+        if (selected == null)
+            return;
+
+        Sector sector = selected;
+
+        if (sector.isBeingPlayed()) {
+            // already at this sector
+            hide();
+            return;
+        }
+
+        if (sector.preset != null && sector.preset.requireUnlock && sector.preset.locked()
+                && sector.preset.techNode != null && !sector.hasBase()) {
+            return;
+        }
+
+        Planet planet = sector.planet;
+
+        // make sure there are no under-attack sectors (other than this one)
+        if (!planet.allowWaveSimulation && !debugSelect) {
+            // if there are two or more attacked sectors... something went wrong, don't show
+            // the dialog to prevent softlock
+            Sector attacked = planet.sectors.find(s -> s.isAttacked() && s != sector);
+            if (attacked != null && planet.sectors.count(s -> s.isAttacked()) < 2) {
+                BaseDialog dialog = new BaseDialog("@sector.noswitch.title");
+                dialog.cont.add(bundle.format("sector.noswitch", attacked.name(), attacked.planet.localizedName))
+                        .width(400f).labelAlign(Align.center).center().wrap();
+                dialog.addCloseButton();
+                dialog.buttons.button("@sector.view", Icon.eyeSmall, () -> {
+                    dialog.hide();
+                    lookAt(attacked);
+                    selectSector(attacked);
+                });
+                dialog.show();
+
+                return;
             }
         }
 
-        if (t.getChildren().any()) {
-            c.defaults().left();
-            c.add(name).row();
-            builder.get(c);
-            c.add(t).padLeft(10f).row();
+        boolean shouldHide = true;
+
+        // save before launch.
+        if (control.saves.getCurrent() != null && Vars.state.isGame() && mode != select) {
+            try {
+                control.saves.getCurrent().save();
+            } catch (Throwable e) {
+                e.printStackTrace();
+                ui.showException("[accent]" + Core.bundle.get("savefail"), e);
+            }
         }
+
+        if (mode == look && !sector.hasBase()) {
+            shouldHide = false;
+            Sector from = findLauncher(sector);
+
+            if (from == null) {
+                // clear loadout information, so only the basic loadout gets used
+                universe.clearLoadoutInfo();
+                // free launch.
+                control.playSector(sector);
+            } else {
+                CoreBlock block = sector.allowLaunchSchematics()
+                        ? (from.info.bestCoreType instanceof CoreBlock b ? b : (CoreBlock) from.planet.defaultCore)
+                        : (CoreBlock) from.planet.defaultCore;
+
+                loadouts.show(block, from, sector, () -> {
+                    var loadout = universe.getLastLoadout();
+                    var schemCore = loadout.findCore();
+                    from.removeItems(loadout.requirements());
+                    from.removeItems(universe.getLaunchResources());
+
+                    Events.fire(new SectorLaunchLoadoutEvent(sector, from, loadout));
+
+                    CoreBuild core = player.team().core();
+                    if (core == null || settings.getBool("skipcoreanimation")) {
+                        // just... go there
+                        control.playSector(from, sector);
+                        // hide only after load screen is shown
+                        Time.runTask(8f, this::hide);
+                    } else {
+                        // hide immediately so launch sector is visible
+                        hide();
+
+                        // allow planet dialog to finish hiding before actually launching
+                        Time.runTask(5f, () -> {
+                            Runnable doLaunch = () -> {
+                                renderer.showLaunch(core);
+                                // run with less delay, as the loading animation is delayed by several frames
+                                Time.runTask(core.launchDuration() - 8f, () -> control.playSector(from, sector));
+                            };
+
+                            // load launchFrom sector right before launching so animation is correct
+                            if (!from.isBeingPlayed()) {
+                                // run *after* the loading animation is done
+                                Time.runTask(9f, doLaunch);
+                                control.playSector(from);
+                            } else {
+                                doLaunch.run();
+                            }
+                        });
+                    }
+                });
+            }
+        } else if (mode == select || mode == planetLaunch) {
+            listener.get(sector);
+        } else {
+            // sector should have base here
+            control.playSector(sector);
+        }
+
+        if (shouldHide)
+            hide();
     }
 
-    public void lookAt(Sector sector) {
-        if (sector.tile == PlanetGrid.Ptile.empty)
-            return;
-
-        state.planet = sector.planet;
-        state.camPos.set(Tmp.v33.set(sector.tile.v).rotate(Vec3.Y, -sector.planet.getRotation()));
-    }
-
-    public void selectSector(Sector sector) {
-        selected = sector;
-        updateSelected();
+    public enum Mode {
+        /** Look around for existing sectors. Can only deploy. */
+        look,
+        /** Select a sector for some purpose. */
+        select,
+        /** Launch between planets. */
+        planetLaunch
     }
 }
