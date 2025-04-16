@@ -3,6 +3,7 @@ package sc;
 import sc.content.SCUnits;
 import sc.content.Test;
 import sc.ui.dialogs.SCPlanetDialog;
+import sc.ui.dialogs.SCResearchDialog;
 import mindustry.mod.Mod;
 import mindustry.type.Sector;
 import mindustry.ui.Styles;
@@ -86,11 +87,18 @@ public class SCMain extends Mod {
     Log.info("loaded init");
     Events.on(mindustry.game.EventType.ClientLoadEvent.class, (e) -> {
       SCPlanetDialog scp = new SCPlanetDialog();
+      SCResearchDialog res = new SCResearchDialog();
       Events.run(Trigger.update, () -> {
         if (Vars.ui.planet.isShown()) {
           Vars.ui.planet.hide();
           if (!scp.isShown()) {
             scp.show();
+          }
+        }
+        if (Vars.ui.research.isShown()) {
+          Vars.ui.research.hide();
+          if (!res.isShown()) {
+            res.show();
           }
         }
       });

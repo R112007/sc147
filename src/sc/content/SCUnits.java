@@ -1057,8 +1057,8 @@ public class SCUnits {
         this.health = 150;
         this.armor = 2;
         this.hitSize = 10;
-        this.engineOffset = 5;
-        this.engineSize = 2;
+        this.engineOffset = 6;
+        this.engineSize = 2.5f;
         this.lowAltitude = true;
         this.itemCapacity = 30;
         this.mineSpeed = 5;
@@ -1077,8 +1077,8 @@ public class SCUnits {
         this.health = 450;
         this.armor = 2;
         this.hitSize = 10;
-        this.engineOffset = 3.5f;
-        this.engineSize = 4;
+        this.engineOffset = 5.9f;
+        this.engineSize = 3.3f;
         this.lowAltitude = true;
         this.itemCapacity = 50;
         this.mineSpeed = 8;

@@ -7,6 +7,7 @@ import static sc.content.blocks.SCPower.*;
 import static sc.content.blocks.SCWalls.*;
 import static sc.content.blocks.SCTurrets.*;
 import static sc.content.blocks.SCDrills.*;
+import static sc.content.blocks.SCUnitBlocks.*;
 import static sc.content.blocks.SCLiquidBlocks.*;
 import static sc.content.blocks.SCDistribution.*;
 import static sc.content.blocks.SCBlocksEffects.*;
@@ -25,6 +26,12 @@ import static sc.content.SCLiquids.*;
 public class LxTechTree {
   public static void load() {
     SCPlanets.lx.techTree = nodeRoot("lx", core1, () -> {
+      node(airfactory, () -> {
+        node(liekong1, () -> {
+        });
+        node(miner1, () -> {
+        });
+      });
       node(jianglindian, () -> {
         node(baoziliegu, Seq.with(new SectorComplete(jianglindian)), () -> {
         });
@@ -83,6 +90,8 @@ public class LxTechTree {
       });
       node(danguanpao, ItemStack.with(lv, 80), () -> {
         node(duoguanpao, Seq.with(new SectorComplete(jianglindian)), () -> {
+          node(liuxing, () -> {
+          });
         });
         node(zhentian, ItemStack.with(lv, 200, li, 200), () -> {
         });

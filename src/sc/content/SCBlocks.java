@@ -6,6 +6,7 @@ import sc.content.blocks.SCDrills;
 import sc.content.blocks.SCLiquidBlocks;
 import sc.content.blocks.SCPower;
 import sc.content.blocks.SCTurrets;
+import sc.content.blocks.SCUnitBlocks;
 import sc.content.blocks.SCWalls;
 import sc.graphics.SCPal;
 import sc.world.SCAttributes;
@@ -1000,6 +1001,7 @@ public class SCBlocks {
         this.craftEffect = Fx.none;
       }
     };
+    SCUnitBlocks.load();
     SCBlocksEffects.load();
   }
 }

@@ -2,10 +2,13 @@ package sc.content.blocks;
 
 import arc.graphics.Color;
 import mindustry.content.Fx;
+import mindustry.content.StatusEffects;
+import mindustry.entities.bullet.ArtilleryBulletType;
 import mindustry.entities.bullet.BasicBulletType;
 import mindustry.entities.bullet.BulletType;
 import mindustry.entities.part.RegionPart;
 import mindustry.entities.pattern.ShootPattern;
+import mindustry.gen.Sounds;
 import mindustry.entities.pattern.ShootBarrel;
 import mindustry.type.Category;
 import mindustry.type.Item;
@@ -22,6 +25,7 @@ public class SCTurrets {
   public static Block danguanpao;
   public static Block duoguanpao;
   public static Block zhentian;
+  public static Block liuxing;
 
   public static void load() {
     SCTurrets.danguanpao = new ItemTurret("danguanpao") {
@@ -80,7 +84,7 @@ public class SCTurrets {
         this.health = 240;
         this.size = 1;
         this.reload = 23.0f;
-        this.range = 170.0f;
+        this.range = 190.0f;
         this.inaccuracy = 0.0f;
         this.recoil = 1.0f;
         this.rotateSpeed = 5.0f;
@@ -97,7 +101,7 @@ public class SCTurrets {
               {
                 this.width = 5.0f;
                 this.height = 8.0f;
-                this.lifetime = 170f / 4f;
+                this.lifetime = 190f / 4f;
                 this.reloadMultiplier = 1.0f;
                 this.ammoMultiplier = 1.3f;
               }
@@ -106,7 +110,7 @@ public class SCTurrets {
               {
                 this.width = 5.0f;
                 this.height = 8.0f;
-                this.lifetime = 170f / 4f;
+                this.lifetime = 190f / 4f;
                 this.reloadMultiplier = 1.0f;
                 this.ammoMultiplier = 1.3f;
               }
@@ -115,7 +119,7 @@ public class SCTurrets {
               {
                 this.width = 5.0f;
                 this.height = 8.0f;
-                this.lifetime = 170f / 4f;
+                this.lifetime = 190f / 4f;
                 this.reloadMultiplier = 1.0f;
                 this.ammoMultiplier = 1.3f;
                 this.fragBullets = 2;
@@ -202,6 +206,71 @@ public class SCTurrets {
                     };
                   }
                 };
+              }
+            });
+      }
+    };
+    SCTurrets.liuxing = new ItemTurret("liuxing") {
+      {
+        this.size = 1;
+        this.health = 530;
+        this.ammoPerShot = 1;
+        this.coolant = consumeCoolant(0.1f);
+        this.requirements(Category.turret, ItemStack.with(new Object[] { SCItems.lv, 60, SCItems.cuguijing, 35 }));
+        this.range = 260;
+        this.reload = 60;
+        this.inaccuracy = 0;
+        this.ammoPerShot = 1;
+        this.ammoUseEffect = Fx.casing2;
+        this.rotateSpeed = 1;
+        this.maxAmmo = 30;
+        this.targetAir = false;
+        this.targetGround = true;
+        this.coolantMultiplier = 2;
+        this.heatColor = Color.valueOf("#FF0000");
+        this.shootSound = Sounds.bang;
+        this.ammo(
+            SCItems.lv, new ArtilleryBulletType(3f, 10f) {
+              {
+                this.reloadMultiplier = 1;
+                this.knockback = 1;
+                this.lifetime = 260f / 3f;
+                this.width = 8;
+                this.height = 13;
+                this.ammoMultiplier = 2;
+                this.splashDamageRadius = 20;
+                this.splashDamage = 25;
+              }
+            },
+            SCItems.tandanzhi, new ArtilleryBulletType(3f, 14f) {
+              {
+                this.reloadMultiplier = 1;
+                this.status = StatusEffects.burning;
+                this.makeFire = true;
+                this.incendChance = 0.5f;
+                this.incendSpread = 1;
+                this.incendAmount = 10;
+                this.knockback = 1;
+                this.lifetime = 260f / 3f;
+                this.width = 8;
+                this.height = 13;
+                this.ammoMultiplier = 2;
+                this.splashDamageRadius = 30;
+                this.splashDamage = 42;
+              }
+            },
+            SCItems.cuguijing, new ArtilleryBulletType(3f, 20f) {
+              {
+                this.reloadMultiplier = 1.2f;
+                this.knockback = 1;
+                this.lifetime = 260f / 3f;
+                this.width = 8;
+                this.homingPower = 0.03f;
+                this.homingRange = 40;
+                this.height = 13;
+                this.ammoMultiplier = 3;
+                this.splashDamageRadius = 20;
+                this.splashDamage = 53;
               }
             });
       }

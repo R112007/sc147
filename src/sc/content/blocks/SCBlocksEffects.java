@@ -10,6 +10,7 @@ import mindustry.world.blocks.defense.MendProjector;
 import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.blocks.storage.StorageBlock;
 import mindustry.world.blocks.storage.Unloader;
+import mindustry.world.meta.BlockGroup;
 import sc.content.SCItems;
 import sc.content.SCUnits;
 
@@ -119,6 +120,7 @@ public class SCBlocksEffects {
         this.requirements(Category.effect,
             ItemStack.with(new Object[] { SCItems.lv, 50, SCItems.cuguijing, 25 }));
         this.speed = 6f;
+        this.group = BlockGroup.transportation;
       }
     };
   }
