@@ -6,9 +6,11 @@ import mindustry.content.StatusEffects;
 import mindustry.entities.bullet.ArtilleryBulletType;
 import mindustry.entities.bullet.BasicBulletType;
 import mindustry.entities.bullet.BulletType;
+import mindustry.entities.bullet.MissileBulletType;
 import mindustry.entities.part.RegionPart;
 import mindustry.entities.pattern.ShootPattern;
 import mindustry.gen.Sounds;
+import mindustry.entities.pattern.ShootAlternate;
 import mindustry.entities.pattern.ShootBarrel;
 import mindustry.type.Category;
 import mindustry.type.Item;
@@ -26,6 +28,7 @@ public class SCTurrets {
   public static Block duoguanpao;
   public static Block zhentian;
   public static Block liuxing;
+  public static Block tujin1;
 
   public static void load() {
     SCTurrets.danguanpao = new ItemTurret("danguanpao") {
@@ -271,6 +274,97 @@ public class SCTurrets {
                 this.ammoMultiplier = 3;
                 this.splashDamageRadius = 20;
                 this.splashDamage = 53;
+              }
+            });
+      }
+    };
+
+    SCTurrets.tujin1 = new ItemTurret("tujin1") {
+      {
+        this.health = 860;
+        this.ammoPerShot = 2;
+        this.size = 2;
+        this.reload = 15;
+        this.range = 160;
+        this.inaccuracy = 0;
+        this.recoil = 3;
+        this.requirements(Category.turret,
+            ItemStack.with(new Object[] { SCItems.lv, 60, SCItems.li, 80, SCItems.cuguijing, 45 }));
+        this.rotateSpeed = 5;
+        this.maxAmmo = 80;
+        this.alwaysUnlocked = false;
+        this.shoot = new ShootAlternate(1.5f) {
+          {
+            this.barrels = 2;
+            this.shots = 2;
+            this.shotDelay = 2;
+          }
+        };
+        this.consumePower(1f);
+        this.coolant = consumeCoolant(0.2f);
+        this.ammo(
+            SCItems.lv, new BasicBulletType(6f, 32f) {
+              {
+                this.reloadMultiplier = 1.2f;
+                this.ammoMultiplier = 4;
+                this.width = 8;
+                this.height = 14;
+                this.inaccuracy = 3;
+                this.smokeEffect = Fx.pulverizeRed;
+                this.lifetime = 30;
+              }
+            },
+            SCItems.li, new BasicBulletType(6f, 38f) {
+              {
+                this.reloadMultiplier = 1.2f;
+                this.ammoMultiplier = 4;
+                this.width = 8;
+                this.height = 14;
+                this.inaccuracy = 3;
+                this.smokeEffect = Fx.pulverizeRed;
+                this.lifetime = 30;
+              }
+            },
+            SCItems.xi, new BasicBulletType(6f, 45f) {
+              {
+                this.reloadMultiplier = 1.2f;
+                this.ammoMultiplier = 4;
+                this.width = 8;
+                this.height = 14;
+                this.inaccuracy = 3;
+                this.smokeEffect = Fx.pulverizeRed;
+                this.lifetime = 30;
+                this.reloadMultiplier = 1;
+                this.ammoMultiplier = 4;
+                this.width = 14;
+                this.pierce = true;
+                this.pierceCap = 3;
+                this.height = 8;
+                this.backColor = Color.valueOf("l#00ffff");
+                this.frontColor = Color.valueOf("#00ffff");
+                this.trailColor = Color.valueOf("#00ffff");
+                this.inaccuracy = 2;
+                this.smokeEffect = Fx.pulverizeRed;
+                this.lifetime = 30f;
+              }
+            },
+            SCItems.tandanzhi, new MissileBulletType(6f, 32f) {
+              {
+                this.width = 8;
+                this.height = 18;
+                this.status = StatusEffects.burning;
+                this.lifetime = 30;
+                this.homingPower = 0.1f;
+                this.homingRange = 40;
+                this.ammoMultiplier = 5;
+                this.shrinkY = 0;
+                this.drag = -0.01f;
+                this.splashDamageRadius = 38;
+                this.splashDamage = 25;
+                this.backColor = Color.valueOf("CC6600");
+                this.frontColor = Color.valueOf("FFAA33");
+                this.trailColor = Color.valueOf("CC6600");
+                this.hitEffect = Fx.massiveExplosion;
               }
             });
       }

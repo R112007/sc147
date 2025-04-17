@@ -20,12 +20,15 @@ import mindustry.entities.bullet.ArtilleryBulletType;
 import mindustry.entities.bullet.BasicBulletType;
 import mindustry.entities.bullet.MissileBulletType;
 import mindustry.entities.bullet.PointBulletType;
+import mindustry.entities.bullet.SapBulletType;
+import mindustry.entities.bullet.ContinuousLaserBulletType;
 import mindustry.entities.bullet.ShrapnelBulletType;
 import mindustry.type.UnitType;
 import mindustry.type.Weapon;
 import mindustry.type.weapons.RepairBeamWeapon;
 import mindustry.world.meta.BlockFlag;
 import mindustry.entities.bullet.BulletType;
+import mindustry.entities.bullet.LaserBoltBulletType;
 import mindustry.entities.effect.WaveEffect;
 import mindustry.entities.pattern.ShootSpread;
 import mindustry.gen.Sounds;
@@ -42,6 +45,7 @@ public class SCUnits {
   public static UnitType papa1;
   public static UnitType papa2;
   public static UnitType papa3;
+  public static UnitType zhuhuo1;
   public static UnitType liekong1;
   public static UnitType liekong2;
   public static UnitType liekong3;
@@ -812,9 +816,208 @@ public class SCUnits {
         });
       }
     };
+    SCUnits.papa3 = new UnitType("papa3") {
+      {
+
+        this.ammoType = new ItemAmmoType(SCItems.lin);
+        this.hitSize = 20;
+        this.hovering = true;
+        this.drawShields = false;
+        this.allowLegStep = true;
+        this.groundLayer = 75;
+        this.health = 2880;
+        this.armor = 8;
+        this.speed = 0.4f;
+        this.rotateSpeed = 5;
+        this.buildSpeed = 0;
+        this.constructor = UnitTypes.atrax.constructor;
+        this.controller = UnitTypes.atrax.controller;
+        this.legCount = 6;
+        this.legLength = 13;
+        this.legBaseOffset = 2;
+        this.legMoveSpace = 1.4f;
+        this.legSplashDamage = 10;
+        this.legForwardScl = 0.8f;
+        this.legSplashRange = 4;
+        this.rippleScale = 0.1f;
+        this.drawBody = true;
+        this.drawCell = true;
+        this.weapons.add(new Weapon("sc-papa3-weapon1") {
+          {
+            this.reload = 8;
+            this.mirror = true;
+            this.x = 5;
+            this.y = 4.5f;
+            this.shootY = 3;
+            this.shoot.shots = 4;
+            this.shoot.shotDelay = 1f;
+            this.bullet = new BasicBulletType(5f, 45f) {
+              {
+                this.status = StatusEffects.burning;
+                this.collidesAir = true;
+                this.width = 0.1f;
+                this.height = 0.1f;
+                this.smokeEffect = Fx.none;
+                this.lifetime = 15;
+                this.despawnEffect = Fx.none;
+                this.hittable = false;
+                this.reflectable = false;
+                this.pierce = true;
+                this.makeFire = true;
+                this.incendAmount = 1;
+                this.hitEffect = new ParticleEffect() {
+                  {
+                    this.particles = 7;
+                    this.sizeFrom = 2;
+                    this.sizeTo = 0;
+                    this.length = 20;
+                    this.lifetime = 15;
+                    this.interp = interp.circleOut;
+                    this.colorFrom = Color.valueOf("#009FCC");
+                    this.colorTo = Color.valueOf("#0066FF");
+                    this.cone = 6f;
+                  }
+                };
+                this.shootEffect = new ParticleEffect() {
+                  {
+                    this.particles = 7;
+                    this.sizeFrom = 2;
+                    this.sizeTo = 0;
+                    this.length = 20;
+                    this.lifetime = 15;
+                    this.interp = interp.circleOut;
+                    this.colorFrom = Color.valueOf("#009FCC");
+                    this.colorTo = Color.valueOf("#0066FF");
+                    this.cone = 6f;
+                  }
+                };
+              }
+            };
+          }
+        });
+        this.weapons.add(new Weapon("sc-papa3-weapon2") {
+          {
+            this.y = 4.25f;
+            this.x = -8.5f;
+            this.rotate = true;
+            this.recoil = 2;
+            this.reload = 16;
+            this.shootSound = Sounds.sap;
+            this.bullet = new SapBulletType() {
+              {
+                this.damage = 38;
+                this.knockback = 0;
+                this.length = 85;
+                this.sapStrength = 0.5f;
+                this.color = Color.valueOf("bf92f9");
+                this.lightColor = Color.valueOf("a488eb");
+                this.shootEffect = Fx.shootLiquid;
+                this.hitEffect = Fx.hitLiquid;
+              }
+            };
+          }
+        });
+        this.weapons.add(new Weapon("sc-papa3-weapon2") {
+          {
+            this.y = 2f;
+            this.x = 7f;
+            this.rotate = true;
+            this.recoil = 2;
+            this.reload = 16;
+            this.shootSound = Sounds.sap;
+            this.bullet = new SapBulletType() {
+              {
+                this.damage = 38;
+                this.knockback = 0;
+                this.length = 85;
+                this.sapStrength = 0.5f;
+                this.color = Color.valueOf("bf92f9");
+                this.lightColor = Color.valueOf("a488eb");
+                this.shootEffect = Fx.shootLiquid;
+                this.hitEffect = Fx.hitLiquid;
+              }
+            };
+          }
+        });
+      }
+    };
+    SCUnits.zhuhuo1 = new UnitType("zhuhuo1") {
+      {
+        this.constructor = UnitTypes.dagger.constructor;
+        this.controller = UnitTypes.dagger.controller;
+        this.speed = 0.57f;
+        this.hitSize = 8;
+        this.health = 500;
+        this.itemCapacity = 0;
+        this.armor = 4;
+        this.range = 78;
+        this.immunities.add(StatusEffects.burning);
+        this.weapons.add(new Weapon("sc-zhuhuo1-l") {
+          {
+            this.top = true;
+            this.mirror = false;
+            this.shootY = 14;
+            this.x = -5.75f;
+            this.y = 0f;
+            this.shoot.firstShotDelay = 10f;
+            this.chargeSound = Sounds.lasercharge2;
+            this.shootSound = Sounds.beam;
+            this.reload = 100;
+            this.recoil = 0;
+            this.continuous = true;
+            this.cooldownTime = 80;
+            this.bullet = new ContinuousLaserBulletType(8f) {
+              {
+                this.buildingDamageMultiplier = 1;
+                this.length = 64;
+                this.width = 1;
+                this.status = StatusEffects.burning;
+                this.hitEffect = Fx.hitMeltHeal;
+                this.drawSize = 60;
+                this.lifetime = 60;
+                this.statusDuration = 180;
+                this.shake = 3;
+                this.colors = new Color[] { Color.valueOf("#F3E979FF"), Color.valueOf("#D99F6BFF") };
+              }
+            };
+          }
+        });
+        this.weapons.add(new Weapon("sc-zhuhuo1-r") {
+          {
+            this.top = true;
+            this.mirror = false;
+            this.shootY = 14;
+            this.x = 5.75f;
+            this.y = 0f;
+            this.shoot.firstShotDelay = 10f;
+            this.chargeSound = Sounds.lasercharge2;
+            this.shootSound = Sounds.beam;
+            this.reload = 100;
+            this.recoil = 0;
+            this.continuous = true;
+            this.cooldownTime = 80;
+            this.bullet = new ContinuousLaserBulletType(8f) {
+              {
+                this.buildingDamageMultiplier = 1;
+                this.length = 64;
+                this.width = 1;
+                this.status = StatusEffects.burning;
+                this.hitEffect = Fx.hitMeltHeal;
+                this.drawSize = 60;
+                this.lifetime = 60;
+                this.statusDuration = 180;
+                this.shake = 3;
+                this.colors = new Color[] { Color.valueOf("#F3E979FF"), Color.valueOf("#D99F6BFF") };
+              }
+            };
+          }
+        });
+      }
+    };
     SCUnits.liekong1 = new UnitType("liekong1") {
       {
         this.hitSize = 7f;
+        this.immunities.add(StatusEffects.burning);
         this.rotateSpeed = 5f;
         this.itemCapacity = 10;
         this.constructor = UnitTypes.flare.constructor;
@@ -1082,9 +1285,35 @@ public class SCUnits {
         this.lowAltitude = true;
         this.itemCapacity = 50;
         this.mineSpeed = 8;
+        this.buildSpeed = 1.2f;
         this.mineTier = 2;
         this.mineItems = Seq.with(SCItems.lv, SCItems.li, SCItems.tandanzhi);
-
+        this.weapons.add(new Weapon() {
+          {
+            this.reload = 25;
+            this.x = 5;
+            this.y = -1;
+            this.rotate = false;
+            this.shootY = 6;
+            this.top = true;
+            this.inaccuracy = 0;
+            this.alternate = false;
+            this.shootSound = Sounds.lasershoot;
+            this.bullet = new LaserBoltBulletType(7f, 25f) {
+              {
+                this.frontColor = Color.valueOf("FFFFFF");
+                this.backColor = Color.valueOf("97FFA8FF");
+                this.healPercent = 4;
+                this.damage = 15;
+                this.collidesTeam = true;
+                this.speed = 7;
+                this.lifetime = 24;
+                this.width = 2;
+                this.height = 8;
+              }
+            };
+          }
+        });
       }
     };
   }
