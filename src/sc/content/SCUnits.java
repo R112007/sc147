@@ -950,11 +950,10 @@ public class SCUnits {
         this.health = 500;
         this.itemCapacity = 0;
         this.armor = 4;
-        this.range = 78;
         this.immunities.add(StatusEffects.burning);
         this.weapons.add(new Weapon("sc-zhuhuo1-l") {
           {
-            this.top = true;
+            this.top = false;
             this.mirror = false;
             this.shootY = 14;
             this.x = -5.75f;
@@ -966,15 +965,15 @@ public class SCUnits {
             this.recoil = 0;
             this.continuous = true;
             this.cooldownTime = 80;
-            this.bullet = new ContinuousLaserBulletType(8f) {
+            this.bullet = new ContinuousLaserBulletType(12f) {
               {
                 this.buildingDamageMultiplier = 1;
-                this.length = 64;
+                this.length = 78;
                 this.width = 1;
                 this.status = StatusEffects.burning;
                 this.hitEffect = Fx.hitMeltHeal;
                 this.drawSize = 60;
-                this.lifetime = 60;
+                this.lifetime = 80;
                 this.statusDuration = 180;
                 this.shake = 3;
                 this.colors = new Color[] { Color.valueOf("#F3E979FF"), Color.valueOf("#D99F6BFF") };
@@ -984,7 +983,7 @@ public class SCUnits {
         });
         this.weapons.add(new Weapon("sc-zhuhuo1-r") {
           {
-            this.top = true;
+            this.top = false;
             this.mirror = false;
             this.shootY = 14;
             this.x = 5.75f;
@@ -996,15 +995,15 @@ public class SCUnits {
             this.recoil = 0;
             this.continuous = true;
             this.cooldownTime = 80;
-            this.bullet = new ContinuousLaserBulletType(8f) {
+            this.bullet = new ContinuousLaserBulletType(12f) {
               {
                 this.buildingDamageMultiplier = 1;
-                this.length = 64;
+                this.length = 78;
                 this.width = 1;
                 this.status = StatusEffects.burning;
                 this.hitEffect = Fx.hitMeltHeal;
                 this.drawSize = 60;
-                this.lifetime = 60;
+                this.lifetime = 80;
                 this.statusDuration = 180;
                 this.shake = 3;
                 this.colors = new Color[] { Color.valueOf("#F3E979FF"), Color.valueOf("#D99F6BFF") };

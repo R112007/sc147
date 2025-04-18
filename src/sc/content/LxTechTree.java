@@ -175,7 +175,7 @@ public class LxTechTree {
           });
           node(battery1, () -> {
           });
-          node(sun1, () -> {
+          node(sun1,Seq.with(new SectorComplete(jianglindian)), () -> {
           });
         });
         node(guijingdrill, () -> {
