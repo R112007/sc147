@@ -79,6 +79,13 @@ public class SCLiquidBlocks {
         this.hasLiquids = true;
         this.requirements(Category.liquid, ItemStack.with(new Object[] { SCItems.lv, 1, SCItems.boli, 2 }));
       }
+
+      @Override
+      public void init() {
+        super.init();
+        this.bridgeReplacement = SCLiquidBlocks.lvdaoguanqiao;
+        this.junctionReplacement = SCLiquidBlocks.lvyetijiaochaqi;
+      }
     };
     SCLiquidBlocks.xidaoguan = new Conduit("xidaoguan") {
       {
@@ -89,6 +96,13 @@ public class SCLiquidBlocks {
         this.requirements(Category.liquid,
             ItemStack.with(new Object[] { SCItems.xi, 2, SCItems.boli, 6, SCItems.chunguijing, 2 }));
         this.liquidPressure = 5f;
+      }
+
+      @Override
+      public void init() {
+        super.init();
+        this.bridgeReplacement = SCLiquidBlocks.lvdaoguanqiao;
+        this.junctionReplacement = SCLiquidBlocks.xidaoguanqiao;
       }
     };
     SCLiquidBlocks.lvyetijiaochaqi = new LiquidJunction("lvyetijiaochaqi") {

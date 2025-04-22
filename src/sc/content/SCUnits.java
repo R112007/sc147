@@ -180,7 +180,7 @@ public class SCUnits {
         this.controller = UnitTypes.dagger.controller;
         this.speed = 0.35f;
         this.ammoType = new ItemAmmoType(SCItems.cuguijing);
-        this.health = 3050.0f;
+        this.health = 3250.0f;
         this.itemCapacity = 0;
         this.armor = 6.0f;
         this.rotateSpeed = 2.0f;
@@ -194,7 +194,7 @@ public class SCUnits {
             this.y = 0f;
             this.top = false;
             this.ejectEffect = Fx.casing1;
-            this.bullet = new BasicBulletType(4.0f, 35.0f) {
+            this.bullet = new BasicBulletType(6.0f, 35.0f) {
               {
                 this.sprite = "sc-chujia3-bullet";
                 this.width = 8.0f;
@@ -217,7 +217,7 @@ public class SCUnits {
               {
                 this.width = 8.0f;
                 this.height = 12.0f;
-                this.lifetime = 40.0f;
+                this.lifetime = 45.0f;
                 this.splashDamage = 36.0f;
                 this.splashDamageRadius = 16.0f;
                 this.status = StatusEffects.blasted;
@@ -711,7 +711,7 @@ public class SCUnits {
     };
     SCUnits.papa2 = new UnitType("papa2") {
       {
-        this.health = 880f;
+        this.health = 1180f;
         this.armor = 5f;
         this.legCount = 4;
         this.ammoType = new ItemAmmoType(SCItems.tandanzhi);
@@ -777,7 +777,7 @@ public class SCUnits {
                 this.width = 0.1f;
                 this.height = 0.1f;
                 this.smokeEffect = Fx.none;
-                this.lifetime = 15;
+                this.lifetime = 30;
                 this.despawnEffect = Fx.none;
                 this.hittable = false;
                 this.reflectable = false;
@@ -825,7 +825,7 @@ public class SCUnits {
         this.drawShields = false;
         this.allowLegStep = true;
         this.groundLayer = 75;
-        this.health = 2880;
+        this.health = 3500;
         this.armor = 8;
         this.speed = 0.4f;
         this.rotateSpeed = 5;
@@ -851,14 +851,14 @@ public class SCUnits {
             this.shootY = 3;
             this.shoot.shots = 4;
             this.shoot.shotDelay = 1f;
-            this.bullet = new BasicBulletType(5f, 45f) {
+            this.bullet = new BasicBulletType(5f, 59f) {
               {
                 this.status = StatusEffects.burning;
                 this.collidesAir = true;
                 this.width = 0.1f;
                 this.height = 0.1f;
                 this.smokeEffect = Fx.none;
-                this.lifetime = 15;
+                this.lifetime = 40;
                 this.despawnEffect = Fx.none;
                 this.hittable = false;
                 this.reflectable = false;
@@ -870,12 +870,12 @@ public class SCUnits {
                     this.particles = 7;
                     this.sizeFrom = 2;
                     this.sizeTo = 0;
-                    this.length = 20;
-                    this.lifetime = 15;
+                    this.length = 10;
+                    this.lifetime = 25;
                     this.interp = interp.circleOut;
                     this.colorFrom = Color.valueOf("#009FCC");
                     this.colorTo = Color.valueOf("#0066FF");
-                    this.cone = 6f;
+                    this.cone = 30f;
                   }
                 };
                 this.shootEffect = new ParticleEffect() {
@@ -883,12 +883,12 @@ public class SCUnits {
                     this.particles = 7;
                     this.sizeFrom = 2;
                     this.sizeTo = 0;
-                    this.length = 20;
-                    this.lifetime = 15;
+                    this.length = 40;
+                    this.lifetime = 35;
                     this.interp = interp.circleOut;
                     this.colorFrom = Color.valueOf("#009FCC");
                     this.colorTo = Color.valueOf("#0066FF");
-                    this.cone = 6f;
+                    this.cone = 30f;
                   }
                 };
               }
@@ -905,7 +905,7 @@ public class SCUnits {
             this.shootSound = Sounds.sap;
             this.bullet = new SapBulletType() {
               {
-                this.damage = 38;
+                this.damage = 52f;
                 this.knockback = 0;
                 this.length = 85;
                 this.sapStrength = 0.5f;
@@ -927,7 +927,7 @@ public class SCUnits {
             this.shootSound = Sounds.sap;
             this.bullet = new SapBulletType() {
               {
-                this.damage = 38;
+                this.damage = 110;
                 this.knockback = 0;
                 this.length = 85;
                 this.sapStrength = 0.5f;
@@ -947,7 +947,7 @@ public class SCUnits {
         this.controller = UnitTypes.dagger.controller;
         this.speed = 0.57f;
         this.hitSize = 8;
-        this.health = 500;
+        this.health = 600;
         this.itemCapacity = 0;
         this.armor = 4;
         this.immunities.add(StatusEffects.burning);
@@ -1028,7 +1028,7 @@ public class SCUnits {
         this.ammoType = new ItemAmmoType(SCItems.cuguijing);
         this.flying = true;
         this.speed = 1.8f;
-        this.health = 300;
+        this.health = 350;
         this.engineSize = 2.5f;
         this.engineOffset = 4f;
         this.armor = 3;
@@ -1105,7 +1105,7 @@ public class SCUnits {
         this.ammoType = new ItemAmmoType(SCItems.cuguijing);
         this.flying = true;
         this.speed = 1.3f;
-        this.health = 850;
+        this.health = 1150;
         this.engineSize = 2.5f;
         this.engineOffset = 7.2f;
         this.armor = 5;
@@ -1121,7 +1121,7 @@ public class SCUnits {
             this.recoil = 2f;
             this.bullet = new MissileBulletType(4f, 24f) {
               {
-                this.splashDamage = 33;
+                this.splashDamage = 58;
                 this.splashDamageRadius = 12f;
                 this.status = StatusEffects.blasted;
                 this.width = 7f;
@@ -1154,7 +1154,7 @@ public class SCUnits {
         this.ammoType = new ItemAmmoType(SCItems.chunguijing);
         this.flying = true;
         this.speed = 1f;
-        this.health = 3150;
+        this.health = 3500;
         this.engineSize = 3.5f;
         this.engineOffset = 12f;
         this.lowAltitude = true;
@@ -1173,8 +1173,8 @@ public class SCUnits {
             this.top = true;
             this.bullet = new MissileBulletType(4f, 52f) {
               {
-                this.splashDamage = 53;
-                this.splashDamageRadius = 12f;
+                this.splashDamage = 153;
+                this.splashDamageRadius = 32f;
                 this.status = StatusEffects.blasted;
                 this.width = 12f;
                 this.height = 20f;
@@ -1228,7 +1228,7 @@ public class SCUnits {
             this.rotate = true;
             this.rotateSpeed = 2.1f;
             this.ejectEffect = Fx.casing1;
-            this.bullet = new BasicBulletType(4.5f, 85.0f) {
+            this.bullet = new BasicBulletType(4.5f, 185.0f) {
               {
                 this.width = 10.0f;
                 this.height = 22.0f;
@@ -1236,7 +1236,7 @@ public class SCUnits {
                 this.shootEffect = Fx.shootSmall;
                 this.ammoMultiplier = 1.5f;
                 this.pierce = true;
-                this.pierceCap = 2;
+                this.pierceCap = 4;
                 this.pierceBuilding = true;
                 this.trailLength = 5;
                 this.trailWidth = 1.3f;

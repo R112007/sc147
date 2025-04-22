@@ -21,6 +21,7 @@ import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.draw.DrawTurret;
 import sc.content.SCFx;
 import sc.content.SCItems;
+import sc.content.SCStatusEffects;
 
 public class SCTurrets {
 
@@ -346,6 +347,7 @@ public class SCTurrets {
                 this.inaccuracy = 2;
                 this.smokeEffect = Fx.pulverizeRed;
                 this.lifetime = 30f;
+                this.status = SCStatusEffects.duanlu;
               }
             },
             SCItems.tandanzhi, new MissileBulletType(6f, 32f) {
@@ -365,6 +367,42 @@ public class SCTurrets {
                 this.frontColor = Color.valueOf("FFAA33");
                 this.trailColor = Color.valueOf("CC6600");
                 this.hitEffect = Fx.massiveExplosion;
+              }
+            },
+            SCItems.cuguijing, new BasicBulletType(5f, 42f) {
+              {
+                this.knockback = 1;
+                this.width = 8;
+                this.height = 18;
+                this.spin = 0;
+                this.shrinkY = 0;
+                this.shrinkX = 0;
+                this.lifetime = 30;
+                this.hitEffect = Fx.explosion;
+                this.trailLength = 4;
+                this.trailWidth = 5;
+                this.trailColor = Color.valueOf("ffce7b");
+                this.trailRotation = true;
+                this.trailEffect = Fx.disperseTrail;
+                this.trailInterval = 3;
+                this.fragBullets = 5;
+                this.fragRandomSpread = 0;
+                this.fragSpread = 25;
+                this.fragAngle = 22.5f;
+                this.fragVelocityMin = 0.5f;
+                this.fragVelocityMax = 0.5f;
+                this.fragBullet = new BasicBulletType(4f, 20f) {
+                  {
+                    this.splashDamageRadius = 8;
+                    this.splashDamage = 25;
+                    this.trailEffect = Fx.missileTrail;
+                    this.trailInterval = 8;
+                    this.trailLength = 2;
+                    this.trailWidth = 2;
+                    this.trailColor = Color.valueOf("ffce7b");
+                    this.lifetime = 26;
+                  }
+                };
               }
             });
       }

@@ -41,8 +41,8 @@ public class SCMain extends Mod {
 
   public SCMain() {
     Log.info("Loaded Synthetic Crystal Mod Constructor.");
-    Vars.renderer.minZoom = 0.1f;
-    Vars.renderer.maxZoom = 30.0f;
+  //  Vars.renderer.minZoom = 0.1f;
+  //  Vars.renderer.maxZoom = 30.0f;
     /**
      * if (!(Vars.ui.planet instanceof SCPlanetDialog)) {
      * Vars.ui.planet = new SCPlanetDialog();
