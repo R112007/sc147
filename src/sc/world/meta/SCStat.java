@@ -11,6 +11,10 @@ public class SCStat {
   public static final Stat waittime;
   public static final Stat length;
   public static final Stat reducepercent;
+  public static final Stat consumeCrystalE;
+  public static final Stat MaxCrystalE;
+  public static final Stat insideCrystalE;;
+  public static final Stat hasCrystal;
 
   static {
     armorMultiplier = new Stat("armorMultiplier");
@@ -20,6 +24,10 @@ public class SCStat {
     waittime = new Stat("waittime", StatCat.function);
     length = new Stat("length");
     reducepercent = new Stat("reducepercent", StatCat.function);
+    hasCrystal = new Stat("hasCrystal", SCStstCat.crystal);
+    consumeCrystalE = new Stat("consumeCrystalE", SCStstCat.crystal);
+    MaxCrystalE = new Stat("MaxCrystalE", SCStstCat.crystal);
+    insideCrystalE = new Stat("insideCrystalE", SCStstCat.crystal);
   }
 
 }

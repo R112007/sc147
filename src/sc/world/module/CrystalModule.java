@@ -16,6 +16,13 @@ public class CrystalModule extends BlockModule {
   // 每次消耗的晶能数值
   public float consumeCrystal;
 
+  public CrystalModule(float MaxCrystalE, float consumeCrystal, float insideCrystalE, int Baramount) {
+    this.insideCrystalE = insideCrystalE;
+    this.MaxCrystalE = MaxCrystalE;
+    this.consumeCrystal = consumeCrystal;
+    this.Baramount = Baramount;
+  }
+
   // 不同晶能下的效率计算
   public float CrystalEfficiency() {
     if (insideCrystalE >= consumeCrystal) {
@@ -39,6 +46,10 @@ public class CrystalModule extends BlockModule {
 
   public void ConsumeCrystalE() {
     insideCrystalE -= consumeCrystal;
+  }
+
+  public int crystalMultiplier() {
+    return (int) (insideCrystalE / consumeCrystal);
   }
 
   @Override
