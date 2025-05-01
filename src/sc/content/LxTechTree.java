@@ -1,5 +1,6 @@
 package sc.content;
 
+import mindustry.content.Items;
 import static mindustry.content.TechTree.*;
 import static sc.content.SCBlocks.*;
 import static sc.content.LxMaps.*;
@@ -278,6 +279,8 @@ public class LxTechTree {
       });
       Log.info("ready9");
       nodeProduce(SCItems.lv, () -> {
+            nodeProduce(Items.copper, () -> {
+            });
         nodeProduce(Liquids.water, () -> {
           nodeProduce(SCItems.youzao, () -> {
           });

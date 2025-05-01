@@ -15,6 +15,7 @@ public class SCStat {
   public static final Stat MaxCrystalE;
   public static final Stat insideCrystalE;;
   public static final Stat hasCrystal;
+  public static final Stat healpercent;
 
   static {
     armorMultiplier = new Stat("armorMultiplier");
@@ -28,6 +29,7 @@ public class SCStat {
     consumeCrystalE = new Stat("consumeCrystalE", SCStstCat.crystal);
     MaxCrystalE = new Stat("MaxCrystalE", SCStstCat.crystal);
     insideCrystalE = new Stat("insideCrystalE", SCStstCat.crystal);
+    healpercent = new Stat("healpercent", StatCat.function);
   }
 
 }

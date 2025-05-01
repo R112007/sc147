@@ -64,15 +64,18 @@ public class CrystalBlock extends Block {
         bomb();
         kill();
       }
-
-      if (timer >= 600f) {
-        bomb();
-        kill();
-
-      }
+      /**
+       * if (timer >= 600f) {
+       * bomb();
+       * kill();
+       * }
+       */
     }
 
     public float finallyBombXhance() {
+      if (cry.crystalMultiplier() > 0.9 && cry.crystalMultiplier() < 1.25) {
+        return 0f;
+      }
       if (armor > 0) {
         float baseChance = 1 / 100 * armor;
         return cry.bombChance(baseChance);
@@ -82,8 +85,8 @@ public class CrystalBlock extends Block {
     }
 
     public void bomb() {
-      int range = 8 * size * size;// * cry.crystalMultiplier();
-      int damage = 100 * size;// * cry.crystalMultiplier();
+      int range = 8 * size * size * cry.crystalMultiplier();
+      int damage = 100 * size * cry.crystalMultiplier();
       Damage.damage(Team.all[255], this.x, this.y, range, damage, true, true,
           false);
       Damage.damage(Team.all[255], this.x, this.y, range, damage, true, true,
