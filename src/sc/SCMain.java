@@ -14,11 +14,8 @@ import sc.content.SCLoadouts;
 import sc.content.SCOre;
 import sc.content.SCPlanets;
 import sc.content.SCStatusEffects;
-
 import java.util.Objects;
-
 import javax.swing.event.HyperlinkEvent.EventType;
-
 import arc.Core;
 import arc.Events;
 import arc.graphics.Color;
@@ -41,8 +38,8 @@ public class SCMain extends Mod {
 
   public SCMain() {
     Log.info("Loaded Synthetic Crystal Mod Constructor.");
-  //  Vars.renderer.minZoom = 0.1f;
-  //  Vars.renderer.maxZoom = 30.0f;
+    // Vars.renderer.minZoom = 0.1f;
+    // Vars.renderer.maxZoom = 30.0f;
     /**
      * if (!(Vars.ui.planet instanceof SCPlanetDialog)) {
      * Vars.ui.planet = new SCPlanetDialog();
