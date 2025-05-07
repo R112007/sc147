@@ -92,7 +92,7 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
             @Override
             public boolean keyDown(InputEvent event, KeyCode key) {
                 if (event.targetActor == SCPlanetDialog.this && (key == KeyCode.escape || key == KeyCode.back
-                        || key == Core.keybinds.get(Binding.planet_map).key)) {
+                        || key == Binding.planetMap.value.key)) {
                     if (showing() && newPresets.size > 1) {
                         // clear all except first, which is the last sector.
                         newPresets.truncate(1);

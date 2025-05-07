@@ -146,7 +146,7 @@ public class SCResearchDialog extends BaseDialog {
         addCloseButton();
 
         keyDown(key -> {
-            if (key == Core.keybinds.get(Binding.research).key) {
+            if (key == Binding.planetMap.value.key) {
                 Core.app.post(this::hide);
             }
         });
@@ -353,7 +353,7 @@ public class SCResearchDialog extends BaseDialog {
             miny = Math.min(n.y - n.height / 2f, miny);
             maxy = Math.max(n.y + n.height / 2f, maxy);
         }
-        bounds = new Rect(-9999, -9999, 9999*2, 9999*2);
+        bounds = new Rect(-9999, -9999, 9999 * 2, 9999 * 2);
         bounds.y += nodeSize * 1.5f;
     }
 

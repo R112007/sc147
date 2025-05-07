@@ -52,7 +52,7 @@ public class SCWalls {
     SCWalls.lvwall3 = new Wall("lvwall3") {
       {
         this.size = 3;
-        this.health = 4000;
+        this.health = 4500;
         this.armor = 3;
         this.requirements(Category.defense, ItemStack.with(new Object[] { SCItems.lv, 48 }));
       }
