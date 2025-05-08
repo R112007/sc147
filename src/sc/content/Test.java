@@ -5,10 +5,12 @@ import mindustry.type.ItemStack;
 import mindustry.world.Block;
 import sc.world.blocks.crystal.CrystalBlock;
 import sc.world.blocks.denfence.HealWall;
+import sc.world.blocks.denfence.LinkWall;
 
 public class Test {
   public static Block test;
   public static Block test1;
+  public static Block test2;
 
   public static void load() {
     Test.test = new CrystalBlock("test") {
@@ -23,6 +25,14 @@ public class Test {
       }
     };
     test1 = new HealWall("g") {
+      {
+        lightningChance = 1;
+        this.health = 1000;
+        this.size = 2;
+        this.requirements(Category.defense, ItemStack.with(new Object[] { SCItems.lv, 80, SCItems.li, 65 }));
+      }
+    };
+    test2 = new LinkWall("p") {
       {
         lightningChance = 1;
         this.health = 1000;
