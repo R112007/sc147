@@ -4,32 +4,24 @@ import sc.content.blocks.SCBlocksEffects;
 import sc.content.blocks.SCDistribution;
 import sc.content.blocks.SCDrills;
 import sc.content.blocks.SCLiquidBlocks;
+import sc.content.blocks.SCLogic;
 import sc.content.blocks.SCPower;
 import sc.content.blocks.SCTurrets;
 import sc.content.blocks.SCUnitBlocks;
 import sc.content.blocks.SCWalls;
-import sc.graphics.SCPal;
 import sc.world.SCAttributes;
 import sc.world.blocks.denfence.ReduceBoost;
-import sc.world.blocks.distribution.DropDrillItem;
-
-import static sc.content.SCItems.youzao;
-
 import arc.graphics.Color;
-import arc.struct.Seq;
 import arc.util.Log;
 import mindustry.content.Fx;
 import mindustry.content.Liquids;
-import mindustry.entities.bullet.BasicBulletType;
 import mindustry.entities.effect.MultiEffect;
 import mindustry.entities.effect.ParticleEffect;
 import mindustry.entities.effect.WaveEffect;
-import mindustry.entities.part.RegionPart;
 import mindustry.type.Category;
 import mindustry.type.ItemStack;
 import mindustry.type.LiquidStack;
 import mindustry.world.Block;
-import mindustry.world.blocks.defense.turrets.ItemTurret;
 import mindustry.world.blocks.production.AttributeCrafter;
 import mindustry.world.blocks.production.GenericCrafter;
 import mindustry.world.blocks.production.Incinerator;
@@ -41,12 +33,8 @@ import mindustry.world.draw.DrawLiquidRegion;
 import mindustry.world.draw.DrawLiquidTile;
 import mindustry.world.draw.DrawMulti;
 import mindustry.world.draw.DrawRegion;
-import mindustry.world.draw.DrawTurret;
 import mindustry.world.draw.DrawWeave;
 import mindustry.world.meta.Attribute;
-import mindustry.world.blocks.storage.CoreBlock;
-import mindustry.world.blocks.power.PowerNode;
-import mindustry.world.blocks.power.SolarGenerator;
 
 /** 合晶工业的建筑 */
 public class SCBlocks {
@@ -965,7 +953,7 @@ public class SCBlocks {
         this.requirements(Category.crafting, ItemStack.with(
             new Object[] { SCItems.hejing1, 650, SCItems.hejing2, 200, SCItems.chijin, 1200, SCItems.ningnengjing, 750,
                 SCItems.hejing3, 80, SCItems.sujiao, 700, SCItems.jinhuihejin, 800 }));
-        this.outputItem = new ItemStack(SCItems.hejing3, 1);
+        this.outputItem = new ItemStack(SCItems.hejing4, 1);
         this.consumeItems(
             ItemStack.with(SCItems.hejing1, 650, SCItems.hejing2, 200, SCItems.chijin, 1200, SCItems.ningnengjing, 750,
                 SCItems.hejing3, 80, SCItems.sujiao, 700, SCItems.jinhuihejin, 800));
@@ -1003,5 +991,6 @@ public class SCBlocks {
     };
     SCUnitBlocks.load();
     SCBlocksEffects.load();
+    SCLogic.load();
   }
 }

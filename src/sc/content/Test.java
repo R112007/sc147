@@ -6,11 +6,13 @@ import mindustry.world.Block;
 import sc.world.blocks.crystal.CrystalBlock;
 import sc.world.blocks.denfence.HealWall;
 import sc.world.blocks.denfence.LinkWall;
+import sc.world.blocks.production.DrillTurret;
 
 public class Test {
   public static Block test;
   public static Block test1;
   public static Block test2;
+  public static Block test3;
 
   public static void load() {
     Test.test = new CrystalBlock("test") {
@@ -36,7 +38,16 @@ public class Test {
       {
         lightningChance = 1;
         this.health = 1000;
-        this.size = 2;
+        this.size = 1;
+        this.requirements(Category.defense, ItemStack.with(new Object[] { SCItems.lv, 80, SCItems.li, 65 }));
+      }
+    };
+    Test.test3 = new DrillTurret("drill-mini") {
+      {
+        range = 90f;
+        itemCapacity = 25;
+        hasPower = true;
+        consumePower(1f);
         this.requirements(Category.defense, ItemStack.with(new Object[] { SCItems.lv, 80, SCItems.li, 65 }));
       }
     };

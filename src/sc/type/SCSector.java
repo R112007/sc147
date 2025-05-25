@@ -7,7 +7,6 @@ import arc.util.Tmp;
 import mindustry.graphics.g3d.PlanetGrid.Ptile;
 import mindustry.type.Planet;
 import mindustry.type.Sector;
-import sc.SCVars;
 
 public class SCSector extends Sector {
   public SCSector(Planet planet, Ptile tile) {

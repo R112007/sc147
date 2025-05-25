@@ -34,13 +34,10 @@ import mindustry.input.*;
 import mindustry.maps.*;
 import mindustry.type.*;
 import mindustry.ui.*;
-import mindustry.ui.dialogs.BaseDialog;
-import mindustry.ui.dialogs.CampaignRulesDialog;
-import mindustry.ui.dialogs.LaunchLoadoutDialog;
+import mindustry.ui.dialogs.*;
 import mindustry.world.blocks.storage.*;
 import mindustry.world.blocks.storage.CoreBlock.*;
 import sc.SCVars;
-import sc.type.SCSector;
 
 import static arc.Core.*;
 import static mindustry.Vars.*;
@@ -75,6 +72,7 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
     public Label hoverLabel = new Label("");
 
     private Texture[] planetTextures;
+    private Element mainView;
     private CampaignRulesDialog campaignRules = new CampaignRulesDialog();
 
     public SCPlanetDialog() {
@@ -91,8 +89,8 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
         addListener(new InputListener() {
             @Override
             public boolean keyDown(InputEvent event, KeyCode key) {
-                if (event.targetActor == SCPlanetDialog.this && (key == KeyCode.escape || key == KeyCode.back
-                        || key == Binding.planetMap.value.key)) {
+                if (event.targetActor == SCPlanetDialog.this
+                        && (key == KeyCode.escape || key == KeyCode.back || key == Binding.planetMap.value.key)) {
                     if (showing() && newPresets.size > 1) {
                         // clear all except first, which is the last sector.
                         newPresets.truncate(1);
@@ -119,9 +117,10 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
             if (Core.input.getTouches() > 1)
                 return;
 
-            if (showing()) {
-                newPresets.clear();
-            }
+            if (showing() && newPresets.peek() != state.planet.getLastSector())
+                return;
+
+            newPresets.clear();
 
             Vec3 pos = state.camPos;
 
@@ -172,7 +171,10 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
             public void tap(InputEvent event, float x, float y, int count, KeyCode button) {
                 var hovered = getHoverPlanet(x, y);
                 if (hovered != null) {
-                    viewPlanet(hovered, false);
+                    var hit = scene.hit(x, y, true);
+                    if (hit == mainView) {
+                        viewPlanet(hovered, false);
+                    }
                 }
             }
         });
@@ -277,8 +279,8 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
 
         // announce new presets
         for (SectorPreset preset : content.sectors()) {
-            if (preset.unlocked() && !preset.alwaysUnlocked && !preset.sector.info.shown && !preset.sector.hasBase()
-                    && preset.planet == state.planet) {
+            if (preset.unlocked() && !preset.alwaysUnlocked && !preset.sector.info.shown && preset.requireUnlock
+                    && !preset.sector.hasBase() && preset.planet == state.planet) {
                 newPresets.add(preset.sector);
                 preset.sector.info.shown = true;
                 preset.sector.saveInfo();
@@ -568,14 +570,15 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
             if (sec != hovered) {
                 var preficon = sec.icon();
                 var icon = sec.isAttacked() ? Fonts.getLargeIcon("warning")
-                        : !sec.hasBase() && sec.preset != null && sec.preset.unlocked() && preficon == null
-                                ? Fonts.getLargeIcon("terrain")
-                                : sec.preset != null && sec.preset.requireUnlock && sec.preset.locked()
-                                        && sec.preset.techNode != null
-                                        && (sec.preset.techNode.parent == null
-                                                || !sec.preset.techNode.parent.content.locked())
-                                                        ? Fonts.getLargeIcon("lock")
-                                                        : preficon;
+                        : !sec.hasBase() && sec.preset != null && sec.preset.requireUnlock && sec.preset.unlocked()
+                                && preficon == null
+                                        ? Fonts.getLargeIcon("terrain")
+                                        : sec.preset != null && sec.preset.requireUnlock && sec.preset.locked()
+                                                && sec.preset.techNode != null
+                                                && (sec.preset.techNode.parent == null
+                                                        || !sec.preset.techNode.parent.content.locked())
+                                                                ? Fonts.getLargeIcon("lock")
+                                                                : preficon;
                 var color = sec.preset != null && sec.preset.requireUnlock && !sec.hasBase() ? Team.derelict.color
                         : Team.sharded.color;
 
@@ -597,7 +600,8 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
                 Draw.color(hovered.isAttacked() ? Pal.remove : Color.white, Pal.accent, Mathf.absin(5f, 1f));
                 Draw.alpha(state.uiAlpha);
 
-                var icon = hovered.locked() && !canSelect(hovered) ? Fonts.getLargeIcon("lock")
+                var icon = hovered.locked() && !canSelect(hovered) && hovered.planet.generator != null
+                        ? getLockedIcon(hovered)
                         : hovered.isAttacked() ? Fonts.getLargeIcon("warning") : hovered.icon();
 
                 if (icon != null) {
@@ -635,7 +639,7 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
         margin(0f);
 
         stack(
-                new Element() {
+                mainView = new Element() {
                     {
                         // add listener to the background rect, so it doesn't get unnecessary touch
                         // input
@@ -891,6 +895,14 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
         }
     }
 
+    public void getLockedText(Sector hovered, StringBuilder out) {
+        out.append("[gray]").append(Iconc.lock).append(" ").append(Core.bundle.get("locked"));
+    }
+
+    public @Nullable TextureRegion getLockedIcon(Sector hovered) {
+        return (hovered.preset == null && !hovered.planet.allowLaunchToNumbered ? null : Fonts.getLargeIcon("lock"));
+    }
+
     @Override
     public void act(float delta) {
         super.act(delta);
@@ -932,10 +944,12 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
             if (hovered != null) {
                 StringBuilder tx = hoverLabel.getText();
                 if (!canSelect(hovered)) {
-                    if (mode == planetLaunch) {
-                        tx.append("[gray]").append(Iconc.cancel);
-                    } else {
-                        tx.append("[gray]").append(Iconc.lock).append(" ").append(Core.bundle.get("locked"));
+                    if (!(hovered.preset == null && !hovered.planet.allowLaunchToNumbered)) {
+                        if (mode == planetLaunch) {
+                            tx.append("[gray]").append(Iconc.cancel);
+                        } else if (hovered.planet.generator != null) {
+                            getLockedText(hovered, tx);
+                        }
                     }
                 } else {
                     tx.append("[accent][[ [white]").append(hovered.name()).append("[accent] ]");
@@ -1026,7 +1040,7 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
 
     void showStats(Sector sector) {
         BaseDialog dialog = new BaseDialog(sector.name());
-        SCSector ss = new SCSector(sector.planet, sector.tile);
+
         dialog.cont.pane(c -> {
             c.defaults().padBottom(5);
 
@@ -1043,10 +1057,9 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
 
             if (sector.isAttacked() || !sector.hasBase()) {
                 float step = 0.11f;
-                String color = Tmp.c1.set(Color.white).lerp(Color.scarlet, Mathf.round(sector.threat, step)).toString();
                 String[] threats = SCVars.threats;
                 int index = Math.min((int) (sector.threat / step), threats.length - 1);
-                String out = "[#" + color + "]" + Core.bundle.get("threat." + threats[index]);
+                String out = Core.bundle.get("threat." + threats[index]);
                 c.add(Core.bundle.get("sectors.threat") + " [accent]" + out).left().row();
             }
 
@@ -1274,7 +1287,6 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
         boolean locked = sector.preset != null && sector.preset.locked() && !sector.hasBase()
                 && sector.preset.techNode != null;
 
-        SCSector ss = new SCSector(sector.planet, sector.tile);
         if (locked) {
             stable.table(r -> {
                 r.add("@complete").colspan(2).left();
@@ -1290,12 +1302,10 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
                 }
             }).row();
         } else if (!sector.hasBase()) {
-                float step = 0.11f;
-                String color = Tmp.c1.set(Color.white).lerp(Color.scarlet, Mathf.round(sector.threat, step)).toString();
-                String[] threats = SCVars.threats;
-                int index = Math.min((int) (sector.threat / step), threats.length - 1);
-                String out = "[#" + color + "]" + Core.bundle.get("threat." + threats[index]);
-            Log.info(out+"   "+threats[index]+"  "+index+"  "+sector.threat+" "+threats.length);
+            float step = 0.11f;
+            String[] threats = SCVars.threats;
+            int index = Math.min((int) (sector.threat / step), threats.length - 1);
+            String out = Core.bundle.get("threat." + threats[index]);
             stable.add(Core.bundle.get("sectors.threat") + " [accent]" + out).row();
         }
 

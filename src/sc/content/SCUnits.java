@@ -2,6 +2,8 @@ package sc.content;
 
 import mindustry.type.ammo.ItemAmmoType;
 import mindustry.type.ammo.PowerAmmoType;
+import sc.entities.abilities.ContinueRepairField;
+import sc.entities.abilities.DeathItemDrop;
 import sc.entities.abilities.FlashAbility;
 import sc.graphics.SCPal;
 import arc.graphics.Color;
@@ -14,7 +16,6 @@ import mindustry.content.UnitTypes;
 import mindustry.entities.abilities.ForceFieldAbility;
 import mindustry.entities.abilities.ShieldArcAbility;
 import mindustry.entities.abilities.ShieldRegenFieldAbility;
-import mindustry.entities.abilities.SpawnDeathAbility;
 import mindustry.entities.abilities.UnitSpawnAbility;
 import mindustry.entities.bullet.ArtilleryBulletType;
 import mindustry.entities.bullet.BasicBulletType;
@@ -23,6 +24,7 @@ import mindustry.entities.bullet.PointBulletType;
 import mindustry.entities.bullet.SapBulletType;
 import mindustry.entities.bullet.ContinuousLaserBulletType;
 import mindustry.entities.bullet.ShrapnelBulletType;
+import mindustry.type.ItemStack;
 import mindustry.type.UnitType;
 import mindustry.type.Weapon;
 import mindustry.type.weapons.RepairBeamWeapon;
@@ -34,6 +36,7 @@ import mindustry.entities.pattern.ShootSpread;
 import mindustry.gen.Sounds;
 import mindustry.entities.effect.ParticleEffect;
 
+@SuppressWarnings("all")
 public class SCUnits {
   public static UnitType tansuozhe;
   public static UnitType chujia1;// 101
@@ -79,6 +82,7 @@ public class SCUnits {
         this.trailColor = SCPal.blue2;
         this.hitSize = 8;
         this.coreUnitDock = true;
+        this.abilities.add(new ContinueRepairField(1.5f, 65, true, true));
         this.weapons.add(new RepairBeamWeapon() {
           {
             this.widthSinMag = 0.11f;
@@ -1271,7 +1275,8 @@ public class SCUnits {
     };
     SCUnits.miner2 = new UnitType("miner2") {
       {
-        this.speed = 1.5f;
+        this.abilities.add(new ContinueRepairField(1.5f, 80, true, false));
+        this.speed = 2.0f;
         this.constructor = UnitTypes.poly.constructor;
         this.controller = UnitTypes.poly.controller;
         this.rotateSpeed = 4;
@@ -1289,7 +1294,7 @@ public class SCUnits {
         this.mineItems = Seq.with(SCItems.lv, SCItems.li, SCItems.tandanzhi);
         this.weapons.add(new Weapon() {
           {
-            this.reload = 25;
+            this.reload = 13;
             this.x = 5;
             this.y = -1;
             this.rotate = false;

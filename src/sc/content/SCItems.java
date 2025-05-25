@@ -2,11 +2,8 @@
 package sc.content;
 
 import arc.graphics.Color;
-import arc.struct.Seq;
 import mindustry.type.Item;
-import sc.graphics.SCPal;
 import sc.type.SCItemType;
-import sc.type.SCchangeitem;
 
 public class SCItems {
   public static Item lv;
@@ -35,20 +32,8 @@ public class SCItems {
   public static Item hejing4;
   public static Item hejing5;
   public static Item cuowu;
-  public static Item gao;
-  public static Item gai;
-  public static Item huangyu;
-  public static Item zhiwu;
-  public static Item mutan;
-  public static Item ningjiao;
-  public static Item tuoerman;
-  public static Item xin;
-  public static Item a;
-  public static final Seq lxitems = new Seq();
-  public static final Seq hzritems = new Seq();
 
   public static void load() {
-    SCItems.a = new SCchangeitem("a", SCPal.blue1);
     SCItems.lv = new SCItemType("lv", Color.valueOf("#E5F0E8")) {
       {
         this.hardness = 1;
@@ -340,101 +325,5 @@ public class SCItems {
         this.explosiveness = 0.0f;
       }
     };
-    SCItems.gao = new SCItemType("gao", Color.valueOf("0A72F2FF")) {
-      {
-        this.hardness = 1;
-        this.cost = 1.0f;
-        this.radioactivity = 0.0f;
-        this.flammability = 0.0f;
-        this.charge = 0.0f;
-        this.crystalEnergy = 0.5f;
-        this.explosiveness = 0.0f;
-      }
-    };
-    SCItems.gai = new SCItemType("gai", Color.valueOf("#E5F0E8")) {
-      {
-        this.hardness = 1;
-        this.cost = 1.0f;
-        this.radioactivity = 0.0f;
-        this.flammability = 0.0f;
-        this.charge = 0.0f;
-        this.crystalEnergy = 0.5f;
-        this.explosiveness = 0.0f;
-      }
-    };
-    SCItems.huangyu = new SCItemType("huangyu", Color.valueOf("FFC400FF")) {
-      {
-        this.hardness = 2;
-        this.cost = 3.0f;
-        this.radioactivity = 0.0f;
-        this.flammability = 0.0f;
-        this.charge = 0.0f;
-        this.crystalEnergy = 1.0f;
-        this.explosiveness = 0.0f;
-      }
-    };
-    SCItems.zhiwu = new SCItemType("zhiwu", Color.valueOf("0DFF00FF")) {
-      {
-        this.hardness = 3;
-        this.cost = 1.0f;
-        this.radioactivity = 0.0f;
-        this.flammability = 0.8f;
-        this.charge = 0.0f;
-        this.crystalEnergy = 0.1f;
-        this.explosiveness = 0.0f;
-      }
-    };
-    SCItems.mutan = new SCItemType("mutan", Color.valueOf("#0000000")) {
-      {
-        this.hardness = 3;
-        this.cost = 1.0f;
-        this.radioactivity = 0.0f;
-        this.flammability = 1.8f;
-        this.charge = 0.0f;
-        this.crystalEnergy = 0.2f;
-        this.explosiveness = 0.0f;
-      }
-    };
-    SCItems.ningjiao = new SCItemType("ningjiao", Color.valueOf("A3D359FF")) {
-      {
-        this.hardness = 1;
-        this.cost = 1.0f;
-        this.radioactivity = 0.0f;
-        this.flammability = 0.0f;
-        this.charge = 0.0f;
-        this.crystalEnergy = 0.2f;
-        this.explosiveness = 0.0f;
-      }
-    };
-    SCItems.tuoerman = new SCItemType("tuoerman", Color.valueOf("99F8FFFF")) {
-      {
-        this.hardness = 1;
-        this.cost = 4.0f;
-        this.radioactivity = 0.0f;
-        this.flammability = 0.0f;
-        this.charge = 0.0f;
-        this.crystalEnergy = 1.5f;
-        this.explosiveness = 0.0f;
-      }
-    };
-    SCItems.xin = new SCItemType("xin", Color.valueOf("8598BFFF")) {
-      {
-        this.hardness = 3;
-        this.cost = 3.5f;
-        this.radioactivity = 0.0f;
-        this.flammability = 0.0f;
-        this.charge = 0.0f;
-        this.crystalEnergy = 2.0f;
-        this.explosiveness = 0.0f;
-      }
-    };
-    SCItems.lxitems.addAll(SCItems.lv, SCItems.li, SCItems.tandanzhi, SCItems.cuguijing, SCItems.chunguijing,
-        SCItems.feijing, SCItems.boli, SCItems.lin, SCItems.youzao, SCItems.zhayao, SCItems.xi, SCItems.jin,
-        SCItems.chijin, SCItems.you, SCItems.lvgang, SCItems.sujiao, SCItems.gutaineng, SCItems.ningnengjing,
-        SCItems.jinhuihejin, SCItems.hejing1, SCItems.hejing2, SCItems.hejing4, SCItems.hejing5);
-    SCItems.hzritems.addAll(new Item[] {
-        SCItems.gao, SCItems.gai, SCItems.huangyu, SCItems.zhiwu, SCItems.tandanzhi, SCItems.ningjiao, SCItems.tuoerman,
-        SCItems.xin
-    });
   }
 }

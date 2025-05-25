@@ -2,16 +2,12 @@ package sc.content;
 
 import static arc.math.Angles.*;
 
-import arc.Core;
 import arc.graphics.Color;
-import arc.graphics.Colors;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.Fill;
 import arc.graphics.g2d.Lines;
-import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
 import arc.math.Rand;
-import arc.util.Nullable;
 import mindustry.entities.Effect;
 import mindustry.entities.effect.ExplosionEffect;
 import mindustry.entities.effect.MultiEffect;
@@ -19,8 +15,9 @@ import mindustry.entities.effect.ParticleEffect;
 import mindustry.entities.effect.WaveEffect;
 import mindustry.graphics.Layer;
 import mindustry.graphics.Pal;
-import mindustry.world.Block;
 import sc.graphics.SCPal;
+import static arc.graphics.g2d.Draw.*;
+import static arc.graphics.g2d.Lines.*;
 
 public class SCFx {
   public static final Rand rand = new Rand();
@@ -31,28 +28,17 @@ public class SCFx {
   public static Effect airpiercedown;
   public static Effect pointdown;
   public static Effect bomb1;
+  public static Effect healWave;
   static {
     SCFx.smoke4sides = new Effect(30.0f, e -> {
       // @Nullable TextureRegion tex = Core.atlas.find("circle");
       Draw.color(SCPal.blue1, SCPal.light_blue1, SCPal.dark_blue1, e.fin());
       float tempx = rand.random(4f, 100.0f);
       float tempy = rand.random(4f, 100.0f);
-      int tempi = rand.random(3, 6);
       float tempsize = rand.random(0f, 7.0f);
       Lines.circle(rand.chance(0.5) ? e.x + tempx : rand.chance(0.5) ? e.x * tempx : e.x / tempx,
           rand.chance(0.5) ? e.y + tempy : e.y - tempy, -tempsize);
       e.fout(0.8f);
-      /*
-       * for (int i = 0; i < tempi; i++) {
-       * float tempx1 = rand.random(0.8f, 40.0f);
-       * float tempy1 = rand.random(0.8f, 40.0f);
-       * 
-       * Draw.color(SCPal.blue1, SCPal.light_blue1, e.fin());
-       * Lines.circle(e.x + tempx1, e.y + tempy1, tempsize);
-       * e.fout(0.3f);
-       * e.lifetime = 30.0f;
-       * }
-       */
     });
     casingbig = new Effect(30f, e -> {
       Draw.color(SCPal.blue1, Color.lightGray, Pal.lightishGray, e.fin());

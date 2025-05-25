@@ -6,20 +6,18 @@ import mindustry.content.StatusEffects;
 import mindustry.entities.bullet.ArtilleryBulletType;
 import mindustry.entities.bullet.BasicBulletType;
 import mindustry.entities.bullet.BulletType;
+import mindustry.entities.bullet.LaserBulletType;
 import mindustry.entities.bullet.MissileBulletType;
 import mindustry.entities.part.RegionPart;
-import mindustry.entities.pattern.ShootPattern;
 import mindustry.gen.Sounds;
 import mindustry.entities.pattern.ShootAlternate;
 import mindustry.entities.pattern.ShootBarrel;
 import mindustry.type.Category;
-import mindustry.type.Item;
 import mindustry.type.ItemStack;
 import mindustry.world.Block;
-import mindustry.world.blocks.defense.turrets.BaseTurret;
 import mindustry.world.blocks.defense.turrets.ItemTurret;
+import mindustry.world.blocks.defense.turrets.PowerTurret;
 import mindustry.world.draw.DrawTurret;
-import sc.content.SCFx;
 import sc.content.SCItems;
 import sc.content.SCStatusEffects;
 
@@ -30,6 +28,9 @@ public class SCTurrets {
   public static Block zhentian;
   public static Block liuxing;
   public static Block tujin1;
+  public static Block tuxi;
+  public static Block powerair1;
+  public static Block chuantou;
 
   public static void load() {
     SCTurrets.danguanpao = new ItemTurret("danguanpao") {
@@ -405,6 +406,125 @@ public class SCTurrets {
                 };
               }
             });
+      }
+    };
+    SCTurrets.tuxi = new ItemTurret("tuxi") {
+      {
+        this.health = 1200;
+        this.ammoPerShot = 5;
+        this.size = 2;
+        this.reload = 30;
+        this.range = 240;
+        this.inaccuracy = 15;
+        this.recoil = 2;
+        this.requirements(Category.turret,
+            ItemStack.with(new Object[] { SCItems.lv, 120, SCItems.li, 150, SCItems.cuguijing, 80, SCItems.xi, 85 }));
+        this.rotateSpeed = 5;
+        this.maxAmmo = 80;
+        this.alwaysUnlocked = false;
+        this.shoot = new ShootAlternate(4f) {
+          {
+            this.barrels = 3;
+            this.shots = 5;
+            this.shotDelay = 4f;
+          }
+        };
+        this.consumePower(3f);
+        this.coolant = consumeCoolant(0.2f);
+        this.ammo(
+            SCItems.cuguijing, SCBullets.tuxibullet1,
+            SCItems.tandanzhi, SCBullets.tuxibullet2,
+            SCItems.xi, SCBullets.tuxibullet3
+        // SCItems.hejing1, SCBullets.tuxibullet4
+
+        );
+      }
+    };
+    SCTurrets.powerair1 = new PowerTurret("powerair1") {
+      {
+        this.health = 320;
+        this.reload = 15;
+        this.size = 1;
+        this.range = 200;
+        this.inaccuracy = 0;
+        this.targetAir = true;
+        this.hasPower = true;
+        this.targetGround = false;
+        this.targetHealing = false;
+        this.shootCone = 2;
+        this.recoil = 0;
+        this.rotateSpeed = 4;
+        this.requirements(Category.turret,
+            ItemStack.with(new Object[] { SCItems.lv, 20, SCItems.li, 30, SCItems.cuguijing, 20 }));
+        this.consumePower(1.5f);
+        this.coolant = consumeCoolant(0.2f);
+        this.shootType = new BasicBulletType() {
+          {
+            this.speed = 5;
+            this.lifetime = 40;
+            this.width = 4;
+            this.height = 6;
+            this.ammoMultiplier = 1;
+            this.collidesAir = true;
+            this.collidesGround = false;
+            this.collidesTeam = false;
+            this.damage = 30;
+          }
+        };
+      }
+    };
+    SCTurrets.chuantou = new PowerTurret("chuantou") {
+      {
+        this.size = 3;
+        this.health = 3000;
+        this.range = 230;
+        this.reload = 70;
+        this.shootSound = Sounds.laser;
+        this.rotateSpeed = 4;
+        this.shake = 1.5f;
+        this.targetAir = false;
+        this.hasPower = true;
+        this.targetGround = true;
+        this.recoil = 0.8f;
+        this.consumePower(15f);
+        this.coolant = consumeCoolant(0.3f);
+        this.shootType = new LaserBulletType() {
+          {
+            this.length = 230;
+            this.width = 30;
+            this.hitSize = 10;
+            this.damage = 360;
+            this.hitEffect = Fx.hitLancer;
+            this.hitSize = 7;
+            this.ammoMultiplier = 1;
+            this.knockback = 0.36f;
+            this.shootEffect = Fx.lancerLaserShoot;
+            this.smokeEffect = Fx.lancerLaserCharge;
+            this.collidesAir = true;
+            this.sideAngle = 15;
+            this.sideWidth = 0;
+            this.sideLength = 0;
+          }
+        };
+        this.drawer = new DrawTurret() {
+          {
+            for (int i = 0; i < 2; i++) {
+              int f = i;
+              this.parts.add(new RegionPart("-" + (f == 0 ? "l" : "r")) {
+                {
+                  this.moveX = (f == 0 ? -1 : 1) * (0.3f);
+                  this.under = false;
+                  this.mirror = false;
+                  this.moveY = 0.0f;
+                  this.heatColor = Color.valueOf("FF7055FF");
+                }
+              });
+            }
+          }
+        };
+        this.requirements(Category.turret,
+            ItemStack.with(new Object[] { SCItems.lv, 200, SCItems.li, 180, SCItems.cuguijing, 180, SCItems.xi, 140,
+                SCItems.chunguijing, 45 }));
       }
     };
   }

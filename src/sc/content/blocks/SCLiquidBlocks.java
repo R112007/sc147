@@ -132,6 +132,7 @@ public class SCLiquidBlocks {
         this.health = 250;
         this.liquidCapacity = 20;
         this.hasLiquids = true;
+        this.hasPower = false;
         this.requirements(Category.liquid,
             ItemStack.with(new Object[] { SCItems.lv, 12, SCItems.boli, 9 }));
         this.range = 5;
@@ -143,6 +144,7 @@ public class SCLiquidBlocks {
         this.health = 430;
         this.liquidCapacity = 40;
         this.hasLiquids = true;
+        this.hasPower = false;
         this.requirements(Category.liquid,
             ItemStack.with(new Object[] { SCItems.xi, 12, SCItems.boli, 25, SCItems.chunguijing, 10 }));
         this.range = 8;

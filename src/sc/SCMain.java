@@ -4,9 +4,8 @@ import sc.content.SCUnits;
 import sc.content.Test;
 import sc.ui.dialogs.SCPlanetDialog;
 import sc.ui.dialogs.SCResearchDialog;
+import sc.world.SCAttributes;
 import mindustry.mod.Mod;
-import mindustry.type.Sector;
-import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
 import sc.content.SCItems;
 import sc.content.SCLiquids;
@@ -15,18 +14,15 @@ import sc.content.SCOre;
 import sc.content.SCPlanets;
 import sc.content.SCStatusEffects;
 import java.util.Objects;
-import javax.swing.event.HyperlinkEvent.EventType;
 import arc.Core;
 import arc.Events;
 import arc.graphics.Color;
 import arc.graphics.g2d.TextureRegion;
-import arc.scene.style.Style;
 import arc.scene.ui.ImageButton;
-import arc.util.Align;
 import arc.util.Log;
-import arc.util.Time;
+import hzr.content.Hload;
 import sc.content.SCBlocks;
-import mindustry.core.Renderer;
+import mindustry.game.EventType;
 import mindustry.game.EventType.Trigger;
 import sc.content.LxMaps;
 import sc.content.LxTechTree;
@@ -38,6 +34,7 @@ public class SCMain extends Mod {
 
   public SCMain() {
     Log.info("Loaded Synthetic Crystal Mod Constructor.");
+    closeMod("HF");
     // Vars.renderer.minZoom = 0.1f;
     // Vars.renderer.maxZoom = 30.0f;
     /**
@@ -54,7 +51,6 @@ public class SCMain extends Mod {
       welcomeDialog.cont.pane(t -> {
         t.add(Core.bundle.get("sc.text1")).row();
       }).row();
-      // welcomeDialog.cont.button("退出", welcomeDialog::hide).size(100.0f, 50.0f);
       welcomeDialog.addCloseButton();
       Log.info("loaded 显示");
       Log.info("dialog is null: " + (welcomeDialog == null));
@@ -116,6 +112,7 @@ public class SCMain extends Mod {
   public void loadContent() {
     Log.info("Start to Load Contents");
     SCStatusEffects.load();
+    SCAttributes.load();
     SCLiquids.load();
     Log.info("loaded liquids");
     SCItems.load();
@@ -130,5 +127,13 @@ public class SCMain extends Mod {
     LxMaps.load();
     Test.load();
     LxTechTree.load();
+    Hload.load();
+  }
+
+  public void closeMod(String name) {
+    Events.on(EventType.ClientLoadEvent.class, (e) -> {
+      if (Vars.mods.getMod(name) != null)
+        Vars.mods.removeMod(Vars.mods.getMod(name));
+    });
   }
 }

@@ -1,12 +1,12 @@
 package sc.content.blocks;
 
-import java.awt.Container;
-
+import mindustry.gen.Sounds;
 import mindustry.type.Category;
 import mindustry.type.ItemStack;
 import mindustry.world.Block;
 import mindustry.world.blocks.defense.ForceProjector;
 import mindustry.world.blocks.defense.MendProjector;
+import mindustry.world.blocks.defense.turrets.PowerTurret;
 import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.blocks.storage.StorageBlock;
 import mindustry.world.blocks.storage.Unloader;
@@ -19,6 +19,7 @@ public class SCBlocksEffects {
   public static Block core1;
   public static Block xiuliqi;
   public static Block xiuliqi2;
+  public static Block shengguang;
   public static Block liqiang1;
   public static Block lvrongqi;
   public static Block weicang;
@@ -62,11 +63,28 @@ public class SCBlocksEffects {
         this.healPercent = 8f;
         this.itemCapacity = 10;
         this.phaseBoost = 30f;
-        this.phaseRangeBoost = 15f;
+        this.phaseRangeBoost = 25f;
         this.consumePower(1.5f);
         this.consumeItem(SCItems.chunguijing, 1).optional(true, true);
         this.requirements(Category.effect,
             ItemStack.with(new Object[] { SCItems.lv, 55, SCItems.li, 60, SCItems.cuguijing, 65, SCItems.xi, 60 }));
+      }
+    };
+    SCBlocksEffects.shengguang = new PowerTurret("shengguang") {
+      {
+        this.health = 820;
+        this.size = 2;
+        this.reload = 20;
+        this.range = 240;
+        this.inaccuracy = 0;
+        this.targetAir = false;
+        this.targetGround = false;
+        this.targetHealing = true;
+        this.shootCone = 2;
+        this.recoil = 0;
+        this.rotateSpeed = 8;
+        this.shootSound = Sounds.lasershoot;
+
       }
     };
     SCBlocksEffects.lvrongqi = new StorageBlock("lvrongqi") {

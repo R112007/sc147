@@ -19,8 +19,8 @@ public class LinkWall extends Wall {
     @Override
     public void updateTile() {
       timer += Time.delta;
+      int a = BlocksNext.getNextNumber(this);
       if (timer >= 120) {
-        int a = BlocksNext.getNextNumber(this);
         Log.info(a);
         timer = 0f;
       }

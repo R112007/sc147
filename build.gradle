@@ -9,11 +9,10 @@ sourceSets.main.java.srcDirs = ["src"]
 
 repositories {
     mavenCentral()
-   maven { url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
+//    maven { url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
     maven{ url "https://raw.kkgithub.com/Zelaux/MindustryRepo/master/repository" }
     maven { url "https://maven.xpdustry.com/mindustry" }
     maven { url 'https://www.jitpack.io' }
-    
 }
 
 java {
@@ -42,9 +41,7 @@ dependencies {
     compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
     annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
 
-//    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
-//    compileOnly 'com.github.EB-wilson:TooManyItems:2.5'
 }
 
 

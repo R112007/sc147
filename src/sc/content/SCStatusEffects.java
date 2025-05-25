@@ -20,7 +20,6 @@ public class SCStatusEffects {
     SCStatusEffects.duanlu = new StatusEffect("duanlu") {
       {
         this.color = SCPal.blue1;
-        this.show = true;
         this.speedMultiplier = 0.8f;
         this.reloadMultiplier = 0.8f;
         this.damageMultiplier = 0.8f;

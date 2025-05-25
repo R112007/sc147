@@ -1,10 +1,8 @@
 package sc.content.blocks;
 
 import arc.graphics.Color;
-import arc.graphics.Colors;
 import mindustry.content.Fx;
 import mindustry.content.Liquids;
-import mindustry.graphics.Pal;
 import mindustry.type.Category;
 import mindustry.type.ItemStack;
 import mindustry.world.Block;
@@ -26,9 +24,12 @@ import sc.graphics.SCPal;
 public class SCPower {
 
   public static Block powernode1;
+  public static Block powernode2;
   public static Block sun1;
   public static Block battery1;
+  public static Block battery2;
   public static Block firepower1;
+  public static Block firepower2;
   public static Block qilunji;
 
   public static void load() {
@@ -46,6 +47,19 @@ public class SCPower {
         this.requirements(Category.power, ItemStack.with(new Object[] { SCItems.lv, 2, SCItems.li, 3 }));
       }
     };
+    SCPower.powernode2 = new PowerNode("powernode2") {
+      {
+        this.size = 2;
+        this.health = 270;
+        this.laserColor1 = SCPal.light_blue1;
+        this.laserColor2 = SCPal.dark_blue1;
+        this.maxNodes = 13;
+        this.armor = 1;
+        this.laserRange = 18;
+        this.hasPower = true;
+        this.requirements(Category.power, ItemStack.with(new Object[] { SCItems.lv, 4, SCItems.li, 5, SCItems.xi, 4 }));
+      }
+    };
     SCPower.firepower1 = new ConsumeGenerator("firepower1") {
       {
         this.size = 1;
@@ -54,6 +68,21 @@ public class SCPower {
         this.powerProduction = 1.5f;
         this.lightRadius = 2.0f;
         this.requirements(Category.power, ItemStack.with(new Object[] { SCItems.lv, 20, SCItems.li, 15 }));
+        this.itemDuration = 120f;
+        this.generateEffect = Fx.generatespark;
+        this.consume(new ConsumeItemFlammable());
+        this.drawer = new DrawMulti(new DrawDefault(), new DrawWarmupRegion());
+      }
+    };
+    SCPower.firepower2 = new ConsumeGenerator("firepower2") {
+      {
+        this.size = 1;
+        this.health = 300;
+        this.buildCostMultiplier = 0.75f;
+        this.powerProduction = 4f;
+        this.lightRadius = 3.0f;
+        this.requirements(Category.power,
+            ItemStack.with(new Object[] { SCItems.lv, 40, SCItems.li, 35, SCItems.cuguijing, 25, SCItems.xi, 20 }));
         this.itemDuration = 120f;
         this.generateEffect = Fx.generatespark;
         this.consume(new ConsumeItemFlammable());
@@ -104,6 +133,21 @@ public class SCPower {
         }, new DrawRegion("-top"));
         this.consumePowerBuffered(3000f);
         this.requirements(Category.power, ItemStack.with(new Object[] { SCItems.lv, 8, SCItems.li, 20 }));
+      }
+    };
+    SCPower.battery2 = new Battery("battery2") {
+      {
+        this.size = 2;
+        this.health = 240;
+        this.drawer = new DrawMulti(new DrawDefault(), new DrawPower() {
+          {
+            this.emptyLightColor = Color.valueOf("#F8C266");
+            this.fullLightColor = Color.valueOf("#FFFFFF");
+          }
+        }, new DrawRegion("-top"));
+        this.consumePowerBuffered(20000f);
+        this.requirements(Category.power,
+            ItemStack.with(new Object[] { SCItems.lv, 35, SCItems.li, 20, SCItems.cuguijing, 20, SCItems.xi, 20 }));
       }
     };
   }

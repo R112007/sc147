@@ -1,14 +1,6 @@
 package sc.content;
 
-import mindustry.content.Items;
 import static mindustry.content.TechTree.*;
-import static sc.content.SCBlocks.*;
-import static sc.content.LxMaps.*;
-import static sc.content.blocks.SCTurrets.*;
-import static sc.content.blocks.SCDrills.*;
-import static sc.content.blocks.SCUnitBlocks.*;
-import static sc.content.blocks.SCLiquidBlocks.*;
-import static sc.content.blocks.SCDistribution.*;
 
 import arc.struct.Seq;
 import arc.util.Log;
@@ -17,28 +9,55 @@ import mindustry.game.Objectives.Research;
 import mindustry.game.Objectives.SectorComplete;
 import mindustry.type.ItemStack;
 import sc.content.blocks.SCBlocksEffects;
+import sc.content.blocks.SCDistribution;
+import sc.content.blocks.SCDrills;
+import sc.content.blocks.SCLiquidBlocks;
+import sc.content.blocks.SCLogic;
 import sc.content.blocks.SCPower;
+import sc.content.blocks.SCTurrets;
+import sc.content.blocks.SCUnitBlocks;
 import sc.content.blocks.SCWalls;
-
 
 public class LxTechTree {
   public static void load() {
     SCPlanets.lx.techTree = nodeRoot("lx", SCBlocksEffects.core1, () -> {
-      node(airfactory, () -> {
+      node(SCLogic.chuliqi1, () -> {
+      });
+      node(SCUnitBlocks.airfactory, () -> {
+        node(SCUnitBlocks.T2unit, () -> {
+        });
+        node(SCUnitBlocks.groundfactory, () -> {
+          node(SCUnits.chujia1, () -> {
+            node(SCUnits.chujia2, () -> {
+            });
+          });
+          node(SCUnits.papa1, () -> {
+            node(SCUnits.papa2, () -> {
+            });
+          });
+          node(SCUnits.zhuhuo1, () -> {
+          });
+        });
         node(SCUnits.liekong1, () -> {
+          node(SCUnits.liekong2, () -> {
+          });
         });
         node(SCUnits.miner1, () -> {
+          node(SCUnits.miner2, () -> {
+          });
         });
       });
-      node(jianglindian, () -> {
-        node(baoziliegu, Seq.with(new SectorComplete(jianglindian)), () -> {
-        node(jiaocuolianfeng, Seq.with(new SectorComplete(baoziliegu)), () -> {
-        });
+      node(LxMaps.jianglindian, () -> {
+        node(LxMaps.baoziliegu, Seq.with(new SectorComplete(LxMaps.jianglindian)), () -> {
+          node(LxMaps.xiji, Seq.with(new SectorComplete(LxMaps.baoziliegu)), () -> {
+          });
+          node(LxMaps.jiaocuolianfeng, Seq.with(new SectorComplete(LxMaps.baoziliegu)), () -> {
+          });
         });
       });
-      node(lvconveyor, () -> {
-        node(lvlianjieqi, () -> {
-          node(lvluyouqi, () -> {
+      node(SCDistribution.lvconveyor, () -> {
+        node(SCDistribution.lvlianjieqi, () -> {
+          node(SCDistribution.lvluyouqi, () -> {
             node(SCBlocksEffects.lvrongqi, () -> {
               node(SCBlocksEffects.weicang, () -> {
                 node(SCBlocksEffects.juxingcang, () -> {
@@ -47,55 +66,61 @@ public class LxTechTree {
               node(SCBlocksEffects.lvunloader, () -> {
               });
             });
-            node(lvbridge, () -> {
-              node(xiconveyor, () -> {
-                node(feijingconveyor, () -> {
-                  node(sujiaoconveyor, () -> {
-                    node(thickconveyor, () -> {
+            node(SCDistribution.lvbridge, () -> {
+              node(SCDistribution.xiconveyor, () -> {
+                node(SCDistribution.feijingconveyor, () -> {
+                  node(SCDistribution.sujiaoconveyor, () -> {
+                    node(SCDistribution.thickconveyor, () -> {
                     });
                   });
                 });
-                node(chijinconveyor, () -> {
-                  node(armorchijinconveyor, () -> {
+                node(SCDistribution.chijinconveyor, () -> {
+                  node(SCDistribution.armorchijinconveyor, () -> {
                   });
                 });
-                node(armorxiconveyor, () -> {
+                node(SCDistribution.armorxiconveyor, () -> {
                 });
               });
-              node(xibridge, () -> {
-                node(massdriver1, () -> {
-                  node(massdriver2, () -> {
+              node(SCDistribution.xibridge, () -> {
+                node(SCDistribution.massdriver1, () -> {
+                  node(SCDistribution.massdriver2, () -> {
                   });
                 });
-                node(chijinbridge, () -> {
+                node(SCDistribution.chijinbridge, () -> {
                 });
               });
-              node(dropdrill1, () -> {
+              node(SCDistribution.dropdrill1, () -> {
               });
             });
-            node(lvyiliumeng, () -> {
-              node(lvfanxiangyiliumeng, () -> {
+            node(SCDistribution.lvyiliumeng, () -> {
+              node(SCDistribution.lvfanxiangyiliumeng, () -> {
               });
             });
-            node(lvfenleiqi, () -> {
-              node(lvfanxiangfenleiqi, () -> {
+            node(SCDistribution.lvfenleiqi, () -> {
+              node(SCDistribution.lvfanxiangfenleiqi, () -> {
               });
             });
-            node(lvfenpeiqi, () -> {
-              node(lvfenliuqi, () -> {
+            node(SCDistribution.lvfenpeiqi, () -> {
+              node(SCDistribution.lvfenliuqi, () -> {
               });
             });
           });
         });
       });
-      node(danguanpao, ItemStack.with(SCItems.lv, 80), () -> {
-        node(duoguanpao, Seq.with(new SectorComplete(jianglindian)), () -> {
-          node(liuxing, () -> {
-          node(tujin1, () -> {
+      node(SCTurrets.danguanpao, ItemStack.with(SCItems.lv, 80), () -> {
+        node(SCTurrets.duoguanpao, Seq.with(new SectorComplete(LxMaps.jianglindian)), () -> {
+          node(SCTurrets.powerair1, () -> {
+            node(SCTurrets.chuantou, () -> {
+            });
           });
+          node(SCTurrets.liuxing, () -> {
+            node(SCTurrets.tujin1, () -> {
+              node(SCTurrets.tuxi, () -> {
+              });
+            });
           });
         });
-        node(zhentian, ItemStack.with(SCItems.lv, 200, SCItems.li, 200), () -> {
+        node(SCTurrets.zhentian, ItemStack.with(SCItems.lv, 200, SCItems.li, 200), () -> {
         });
         node(SCWalls.lvwall1, () -> {
           node(SCWalls.lvwall4, ItemStack.with(SCItems.cuowu, 1), () -> {
@@ -143,135 +168,143 @@ public class LxTechTree {
         });
       });
       Log.info("ready1");
-      node(lvdrill, ItemStack.with(SCItems.lv, 50), () -> {
-        node(beng1, () -> {
-          node(lvdaoguan, () -> {
-            node(lvyetijiaochaqi, () -> {
-              node(lvyetiluyouqi, () -> {
-                node(yetichuguan, () -> {
-                  node(shuixiang, () -> {
+      node(SCDrills.lvdrill, ItemStack.with(SCItems.lv, 50), () -> {
+        node(SCLiquidBlocks.beng1, () -> {
+          node(SCLiquidBlocks.lvdaoguan, () -> {
+            node(SCLiquidBlocks.lvyetijiaochaqi, () -> {
+              node(SCLiquidBlocks.lvyetiluyouqi, () -> {
+                node(SCLiquidBlocks.yetichuguan, () -> {
+                  node(SCLiquidBlocks.shuixiang, () -> {
                   });
                 });
-                node(lvdaoguanqiao, () -> {
-                  node(xidaoguanqiao, () -> {
+                node(SCLiquidBlocks.lvdaoguanqiao, () -> {
+                  node(SCLiquidBlocks.xidaoguanqiao, () -> {
                   });
                 });
               });
             });
-            node(xidaoguan, () -> {
+            node(SCLiquidBlocks.xidaoguan, () -> {
             });
           });
-          node(beng2, () -> {
-            node(beng3, () -> {
-              node(beng4, () -> {
+          node(SCLiquidBlocks.beng2, () -> {
+            node(SCLiquidBlocks.beng3, () -> {
+              node(SCLiquidBlocks.beng4, () -> {
               });
             });
           });
         });
         node(SCPower.powernode1, () -> {
+          node(SCPower.powernode2, () -> {
+          });
           node(SCPower.firepower1, Seq.with(new Research(SCItems.tandanzhi)), () -> {
-            node(SCPower.qilunji, Seq.with(new SectorComplete(baoziliegu)), () -> {
+            node(SCPower.firepower2, () -> {
+            });
+            node(SCPower.qilunji, Seq.with(new SectorComplete(LxMaps.baoziliegu)), () -> {
             });
           });
           node(SCBlocksEffects.xiuliqi, () -> {
+            node(SCBlocksEffects.xiuliqi2, () -> {
+            });
           });
           node(SCPower.battery1, () -> {
+            node(SCPower.battery2, () -> {
+            });
           });
-          node(SCPower.sun1,Seq.with(new SectorComplete(jianglindian)), () -> {
+          node(SCPower.sun1, Seq.with(new SectorComplete(LxMaps.jianglindian)), () -> {
           });
         });
-        node(guijingdrill, () -> {
-          node(guijingdrill2, () -> {
-            node(jindrill, () -> {
+        node(SCDrills.guijingdrill, () -> {
+          node(SCDrills.guijingdrill2, () -> {
+            node(SCDrills.jindrill, () -> {
             });
           });
         });
         Log.info("ready2");
-        node(guicuzhiji, () -> {
-          node(cuzhiganguo, () -> {
+        node(SCBlocks.guicuzhiji, () -> {
+          node(SCBlocks.cuzhiganguo, () -> {
           });
           Log.info("readyb1");
-          node(lintilianji, () -> {
-            node(baozhahunheji, () -> {
+          node(SCBlocks.lintilianji, () -> {
+            node(SCBlocks.baozhahunheji, () -> {
             });
-            node(lintilianji2, () -> {
-              node(lintilianji3, () -> {
+            node(SCBlocks.lintilianji2, () -> {
+              node(SCBlocks.lintilianji3, () -> {
               });
             });
           });
           Log.info("ready3");
-          node(guitichunji, () -> {
-            node(lvganggongchang1, () -> {
-              node(nengliangyasuoji, () -> {
-                node(jinhuihejingongchang1, () -> {
-                  node(jinhuihejingongchang2, () -> {
+          node(SCBlocks.guitichunji, () -> {
+            node(SCBlocks.lvganggongchang1, () -> {
+              node(SCBlocks.nengliangyasuoji, () -> {
+                node(SCBlocks.jinhuihejingongchang1, () -> {
+                  node(SCBlocks.jinhuihejingongchang2, () -> {
                   });
                 });
                 Log.info("ready4");
-                node(chijingongchang, () -> {
+                node(SCBlocks.chijingongchang, () -> {
                 });
-                node(hejinggongchang1, () -> {
-                  node(hejinggongchang2, () -> {
-                    node(hejinggongchang3, () -> {
-                      node(hejinggongchang4, () -> {
-             
+                node(SCBlocks.hejinggongchang1, () -> {
+                  node(SCBlocks.hejinggongchang2, () -> {
+                    node(SCBlocks.hejinggongchang3, () -> {
+                      node(SCBlocks.hejinggongchang4, () -> {
+
                       });
                     });
                   });
                 });
                 Log.info("ready5");
-                node(nengliangliutihunheqi, () -> {
-                  node(nengliangnongsuoji, () -> {
+                node(SCBlocks.nengliangliutihunheqi, () -> {
+                  node(SCBlocks.nengliangnongsuoji, () -> {
                   });
                 });
-                node(nengliangchongyaji, () -> {
+                node(SCBlocks.nengliangchongyaji, () -> {
                 });
               });
               Log.info("ready6");
-              node(sujiaoyasuoji, () -> {
+              node(SCBlocks.sujiaoyasuoji, () -> {
               });
-              node(lvganggongchang2, () -> {
+              node(SCBlocks.lvganggongchang2, () -> {
               });
             });
-            node(hunliji, () -> {
+            node(SCBlocks.hunliji, () -> {
             });
-            node(tichunganguo, () -> {
+            node(SCBlocks.tichunganguo, () -> {
             });
-            node(feijinghechengji1, () -> {
-              node(feijinghechengji2, () -> {
-                node(feijinghechengji3, () -> {
+            node(SCBlocks.feijinghechengji1, () -> {
+              node(SCBlocks.feijinghechengji2, () -> {
+                node(SCBlocks.feijinghechengji3, () -> {
                 });
               });
               Log.info("ready7");
-              node(feizhafensuiji, () -> {
+              node(SCBlocks.feizhafensuiji, () -> {
                 Log.info("readyc1");
               });
             });
           });
-          node(lengdongye1, () -> {
+          node(SCBlocks.lengdongye1, () -> {
             Log.info("readyc2");
-            node(lengdongye2, () -> {
+            node(SCBlocks.lengdongye2, () -> {
               Log.info("readyc3");
             });
           });
-          node(kuangzharonglianji, () -> {
+          node(SCBlocks.kuangzharonglianji, () -> {
             Log.info("readyc4");
-            node(fenhualu, () -> {
+            node(SCBlocks.fenhualu, () -> {
               Log.info("readyc5");
             });
           });
-          node(youjiboliji, () -> {
+          node(SCBlocks.youjiboliji, () -> {
             Log.info("readyc6");
-            node(daxingbolishaozhiji, () -> {
+            node(SCBlocks.daxingbolishaozhiji, () -> {
               Log.info("readyc7");
             });
             Log.info("ready8");
-            node(peiyangji, () -> {
-              node(shiyouyasuoji, () -> {
-                node(shiyoulixinji, () -> {
+            node(SCBlocks.peiyangji, () -> {
+              node(SCBlocks.shiyouyasuoji, () -> {
+                node(SCBlocks.shiyoulixinji, () -> {
                 });
               });
-              node(daxingyouzaopeiyangji, () -> {
+              node(SCBlocks.daxingyouzaopeiyangji, () -> {
               });
             });
           });
@@ -279,8 +312,6 @@ public class LxTechTree {
       });
       Log.info("ready9");
       nodeProduce(SCItems.lv, () -> {
-            nodeProduce(Items.copper, () -> {
-            });
         nodeProduce(Liquids.water, () -> {
           nodeProduce(SCItems.youzao, () -> {
           });
