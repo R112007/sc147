@@ -20,7 +20,7 @@ public class LxMaps {
         this.startWaveTimeMultiplier = 3f;
       }
     };
-    LxMaps.baoziliegu = new SectorPreset("baoziliegu", SCPlanets.lx, 2) {
+    LxMaps.baoziliegu = new SCSectorPreset("baoziliegu", SCPlanets.lx, 2) {
       {
         this.difficulty = 1;
         this.captureWave = 30;

@@ -6,6 +6,7 @@ import mindustry.world.Block;
 import sc.world.blocks.crystal.CrystalBlock;
 import sc.world.blocks.denfence.HealWall;
 import sc.world.blocks.denfence.LinkWall;
+import sc.world.blocks.distribution.SCLaunchPad;
 import sc.world.blocks.production.DrillTurret;
 
 public class Test {
@@ -13,6 +14,7 @@ public class Test {
   public static Block test1;
   public static Block test2;
   public static Block test3;
+  public static Block test4;
 
   public static void load() {
     Test.test = new CrystalBlock("test") {
@@ -48,7 +50,17 @@ public class Test {
         itemCapacity = 25;
         hasPower = true;
         consumePower(1f);
-        this.requirements(Category.defense, ItemStack.with(new Object[] { SCItems.lv, 80, SCItems.li, 65 }));
+        this.requirements(Category.distribution, ItemStack.with(new Object[] { SCItems.lv, 80, SCItems.li, 65 }));
+      }
+    };
+    Test.test4 = new SCLaunchPad("ghbb") {
+      {
+        size = 3;
+        itemCapacity = 100;
+        launchTime = 60f * 20;
+        hasPower = true;
+        consumePower(4f);
+        this.requirements(Category.distribution, ItemStack.with(new Object[] { SCItems.lv, 80, SCItems.li, 65 }));
       }
     };
   }

@@ -65,7 +65,9 @@ public class SCSectorPreset extends SectorPreset {
 
   @Override
   public void loadIcon() {
-    uiIcon = fullIcon = Core.atlas.find(this.name);
+        if(Icon.terrain != null){
+            uiIcon = fullIcon = Core.atlas.find("sector-" + name, Icon.terrain.getRegion());
+        }
   }
 
   @Override

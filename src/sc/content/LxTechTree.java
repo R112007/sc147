@@ -21,6 +21,8 @@ import sc.content.blocks.SCWalls;
 public class LxTechTree {
   public static void load() {
     SCPlanets.lx.techTree = nodeRoot("lx", SCBlocksEffects.core1, () -> {
+      node(Test.test4, () -> {
+      });
       node(SCLogic.chuliqi1, () -> {
       });
       node(SCUnitBlocks.airfactory, () -> {
