@@ -38,11 +38,13 @@ import mindustry.ui.dialogs.*;
 import mindustry.world.blocks.storage.*;
 import mindustry.world.blocks.storage.CoreBlock.*;
 import sc.SCVars;
+import sc.type.SCSectorPreset;
 
 import static arc.Core.*;
 import static mindustry.Vars.*;
 import static mindustry.graphics.g3d.PlanetRenderer.*;
 import static sc.ui.dialogs.SCPlanetDialog.Mode.*;
+import static sc.SCVars.*;
 
 public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRenderer {
     // if true, enables launching anywhere for testing
@@ -279,7 +281,7 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
 
         // announce new presets
         for (SectorPreset preset : content.sectors()) {
-            if (preset.unlocked() && !preset.alwaysUnlocked && !preset.sector.info.shown && preset.requireUnlock
+            if (preset.unlocked() && !preset.sector.info.shown && preset.requireUnlock
                     && !preset.sector.hasBase() && preset.planet == state.planet) {
                 newPresets.add(preset.sector);
                 preset.sector.info.shown = true;
@@ -840,7 +842,7 @@ public class SCPlanetDialog extends BaseDialog implements PlanetInterfaceRendere
     public Planet getHoverPlanet(float mouseX, float mouseY) {
         // do not hover over things indefinitely
         Planet hoverPlanet = null;
-        // get nearest planet (DO NOT SELECT THROUGH selected planet)
+        // get nearest planet (DO NOT SELECT THROUGH cted planet)
         float nearest = Float.POSITIVE_INFINITY;
 
         for (Planet planet : content.planets()) {

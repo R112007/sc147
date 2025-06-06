@@ -27,7 +27,6 @@ public class SCOre {
         oreScale = 23.47619f;
       }
     };
-    Log.info("loaded orelv");
     oreLi = new OreBlock("ore-li", SCItems.li) {
       {
         oreDefault = true;
@@ -35,7 +34,6 @@ public class SCOre {
         oreScale = 23.47619f;
       }
     };
-    Log.info("loaded oreli");
     oreTandanzhi = new OreBlock("ore-tandanzhi", SCItems.tandanzhi) {
       {
         oreDefault = true;
@@ -43,7 +41,6 @@ public class SCOre {
         oreScale = 24.655f;
       }
     };
-    Log.info("loaded ore-tandanzhi");
     oreFeizha = new OreBlock("ore-feizha", SCItems.feizha) {
       {
         oreDefault = true;
@@ -51,8 +48,6 @@ public class SCOre {
         oreScale = 27.655f;
       }
     };
-    Log.info("loaded ore-feizha");
-
     oreXi = new OreBlock("ore-xi", SCItems.xi) {
       {
         oreDefault = true;
@@ -61,7 +56,6 @@ public class SCOre {
       }
     };
 
-    Log.info("loaded orexi");
     oreJin = new OreBlock("ore-jin", SCItems.jin) {
       {
         oreDefault = true;
@@ -69,7 +63,6 @@ public class SCOre {
         oreScale = 20.655f;
       }
     };
-    Log.info("loaded orejin");
     oreYou = new OreBlock("ore-you", SCItems.you) {
       {
         oreDefault = true;
@@ -77,7 +70,6 @@ public class SCOre {
         oreScale = 20.655f;
       }
     };
-    Log.info("loaded oreyou");
     oreChijin = new OreBlock("ore-chijin", SCItems.chijin) {
       {
         oreDefault = true;
@@ -85,7 +77,6 @@ public class SCOre {
         oreScale = 12.655f;
       }
     };
-    Log.info("loaded ore-chijin");
     oreGutaineng = new OreBlock("ore-gutaineng", SCItems.gutaineng) {
       {
         variants = 1;
@@ -94,8 +85,6 @@ public class SCOre {
         oreScale = 12.655f;
       }
     };
-    Log.info("loaded ore-gutaineng");
-
     SCOre.heisha = new Floor("heisha") {
       {
         this.speedMultiplier = 1f;

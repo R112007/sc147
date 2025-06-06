@@ -2,28 +2,28 @@ package sc;
 
 import sc.content.SCUnits;
 import sc.content.Test;
-import sc.ui.dialogs.SCPlanetDialog;
-import sc.ui.dialogs.SCResearchDialog;
+import sc.ui.TimeControl;
+import sc.ui.Tips;
 import sc.world.SCAttributes;
 import mindustry.mod.Mod;
 import mindustry.ui.dialogs.BaseDialog;
+import mindustry.ui.fragments.HintsFragment;
 import sc.content.SCItems;
 import sc.content.SCLiquids;
 import sc.content.SCLoadouts;
 import sc.content.SCOre;
 import sc.content.SCPlanets;
 import sc.content.SCStatusEffects;
-import java.util.Objects;
 import arc.Core;
 import arc.Events;
 import arc.graphics.Color;
-import arc.graphics.g2d.TextureRegion;
-import arc.scene.ui.ImageButton;
 import arc.util.Log;
 import hzr.content.Hload;
 import sc.content.SCBlocks;
+import sc.content.SCIcon;
 import mindustry.game.EventType;
 import mindustry.game.EventType.Trigger;
+import mindustry.gen.Icon;
 import sc.content.LxMaps;
 import sc.content.LxTechTree;
 import mindustry.Vars;
@@ -35,26 +35,14 @@ public class SCMain extends Mod {
   public SCMain() {
     Log.info("Loaded Synthetic Crystal Mod Constructor.");
     closeMod("HF");
-    // Vars.renderer.minZoom = 0.1f;
-    // Vars.renderer.maxZoom = 30.0f;
-    /**
-     * if (!(Vars.ui.planet instanceof SCPlanetDialog)) {
-     * Vars.ui.planet = new SCPlanetDialog();
-     * }
-     */
-    Log.info("缩放");
 
     Events.on(mindustry.game.EventType.ClientLoadEvent.class, (e) -> {
-      // Vars.ui.planet = new SCPlanetDialog();
       welcomeDialog = new BaseDialog(Core.bundle.get("sc.welcome"));
       welcomeDialog.cont.image(Core.atlas.find("sc-crystal-core")).size(310f).pad(5.0f).row();
       welcomeDialog.cont.pane(t -> {
         t.add(Core.bundle.get("sc.text1")).row();
       }).row();
       welcomeDialog.addCloseButton();
-      Log.info("loaded 显示");
-      Log.info("dialog is null: " + (welcomeDialog == null));
-      Log.info("loaded menu");
       welcomeDialog.cont.pane((c) -> {
         c.button(Core.bundle.get("sc.qq"), () -> {
           if (!Core.app.openURI(scqq)) {
@@ -67,45 +55,37 @@ public class SCMain extends Mod {
     });
   }
 
-  public static ImageButton addIcon(String IconName, ImageButton.ImageButtonStyle imageButtonStyle, BaseDialog dialog) {
-    TextureRegion A = Core.atlas.find(SCVars.modName + IconName);
-    ImageButton buttonA = new ImageButton(A, imageButtonStyle);
-    Objects.requireNonNull(dialog);
-    buttonA.clicked(dialog::show);
-    return buttonA;
-  }
-
   @Override
   public void init() {
     Log.info("loaded init");
+    SCVars.scui.init();
+    SCIcon.load();
     Events.on(mindustry.game.EventType.ClientLoadEvent.class, (e) -> {
-      SCPlanetDialog scp = new SCPlanetDialog();
-      SCResearchDialog res = new SCResearchDialog();
       Events.run(Trigger.update, () -> {
         if (Vars.ui.planet.isShown()) {
           Vars.ui.planet.hide();
-          if (!scp.isShown()) {
-            scp.show();
+          if (!SCVars.scui.scplanet.isShown()) {
+            SCVars.scui.scplanet.show();
           }
         }
         if (Vars.ui.research.isShown()) {
           Vars.ui.research.hide();
-          if (!res.isShown()) {
-            res.show();
+          if (!SCVars.scui.scresearch.isShown()) {
+            SCVars.scui.scresearch.show();
           }
         }
       });
+      Vars.ui.menufrag.addButton("研究", Icon.tree, () -> {
+        SCVars.scui.scresearch.show();
+      });
+      Vars.ui.menufrag.addButton("小梓", SCIcon.crystalCore, () -> {
+        welcomeDialog.show();
+      });
     });
-    /**
-     * ImageButton imagebutton = addIcon("crystal-core", Styles.defaulti,
-     * welcomeDialog);
-     * Vars.ui.menuGroup.fill((t) -> {
-     * t.add(imagebutton).update((b) -> b.color.fromHsv(Time.time % 360.0F, 1.0F,
-     * 1.0F)).size(80.0F);
-     * t.left();
-     * t.row();
-     * });
-     */
+    HintsFragment hintsFragment = Vars.ui.hints;
+    for (Tips hint : Tips.values()) {
+      hintsFragment.hints.add(hint);
+    }
   }
 
   @Override
@@ -114,20 +94,17 @@ public class SCMain extends Mod {
     SCStatusEffects.load();
     SCAttributes.load();
     SCLiquids.load();
-    Log.info("loaded liquids");
     SCItems.load();
-    Log.info("loaded items");
     SCOre.load();
-    Log.info("loaded ores");
     SCUnits.load();
     SCBlocks.load();
-    Log.info("loaded blocks");
     SCLoadouts.load();
     SCPlanets.load();
     LxMaps.load();
     Test.load();
     LxTechTree.load();
     Hload.load();
+    TimeControl.load();
   }
 
   public void closeMod(String name) {

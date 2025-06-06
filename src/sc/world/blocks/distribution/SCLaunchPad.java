@@ -141,38 +141,6 @@ public class SCLaunchPad extends Block {
     }
 
     public class SCLaunchPadBuild extends Building {
-        public float launchCounter;
-
-        public boolean accessible() {
-            return Vars.state.isCampaign() && team == Vars.state.rules.defaultTeam;
-        }
-
-        @Override
-        public boolean shouldShowConfigure(Player player) {
-            return Vars.state.isCampaign();
-        }
-
-        @Override
-        public void buildConfiguration(Table table) {
-            if (!Vars.state.isCampaign() || Vars.net.client()) {
-                deselect();
-                return;
-            }
-
-            table.button(Icon.upOpen, Styles.cleari, () -> {
-                Vars.ui.planet.showSelect(Vars.state.rules.sector, other -> {
-                    // if (Vars.state.isCampaign() && other.planet ==
-                    // Vars.state.rules.sector.planet) {
-                    var prev = Vars.state.rules.sector.info.destination;
-                    Vars.state.rules.sector.info.destination = other;
-                    if (prev != null) {
-                        prev.info.refreshImportRates(Vars.state.getPlanet());
-                    }
-                    // }
-                });
-                deselect();
-            }).size(40f);
-        }
 
     }
 }

@@ -186,7 +186,7 @@ public class SCResearchDialog extends BaseDialog {
          public boolean scrolled(InputEvent event, float x, float y, float amountX, float amountY) {
             SCResearchDialog.this.view.setScale(Mathf.clamp(
                   SCResearchDialog.this.view.scaleX - amountY / 10.0F * SCResearchDialog.this.view.scaleX,
-                  0.25F, 1.0F));
+                  0.05F, 5.0F));
             SCResearchDialog.this.view.setOrigin(1);
             SCResearchDialog.this.view.setTransform(true);
             return true;
@@ -205,7 +205,7 @@ public class SCResearchDialog extends BaseDialog {
             }
 
             SCResearchDialog.this.view.setScale(
-                  Mathf.clamp(distance / initialDistance * SCResearchDialog.this.view.lastZoom, 0.25F, 1.0F));
+                  Mathf.clamp(distance / initialDistance * SCResearchDialog.this.view.lastZoom, 0.05F, 5.0F));
             SCResearchDialog.this.view.setOrigin(1);
             SCResearchDialog.this.view.setTransform(true);
          }

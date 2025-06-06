@@ -9,10 +9,10 @@ import mindustry.world.blocks.defense.MendProjector;
 import mindustry.world.blocks.defense.turrets.PowerTurret;
 import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.blocks.storage.StorageBlock;
-import mindustry.world.blocks.storage.Unloader;
 import mindustry.world.meta.BlockGroup;
 import sc.content.SCItems;
 import sc.content.SCUnits;
+import sc.world.blocks.effect.SCUnloader;
 
 public class SCBlocksEffects {
 
@@ -131,7 +131,7 @@ public class SCBlocksEffects {
             ItemStack.with(new Object[] { SCItems.lv, 350, SCItems.li, 350, SCItems.cuguijing, 250, SCItems.xi, 250 }));
       }
     };
-    SCBlocksEffects.lvunloader = new Unloader("lvunloader") {
+    SCBlocksEffects.lvunloader = new SCUnloader("lvunloader") {
       {
         this.size = 1;
         this.health = 200;

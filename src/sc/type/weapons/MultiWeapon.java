@@ -13,6 +13,7 @@ import mindustry.world.meta.StatValues;
 
 public class MultiWeapon extends Weapon {
   public MultiBulletType bullets;
+  int i = 1;
 
   public MultiWeapon(MultiBulletType bullets) {
     super();
@@ -37,8 +38,12 @@ public class MultiWeapon extends Weapon {
           + Strings.autoFixed(60f / reload * shoot.shots, 2) + " " + StatUnit.perSecond.localized());
     }
     for (BulletType b : bullets.bullets) {
+      t.row();
+      t.add("子弹" + i + ":");
+      t.row();
       StatValues.ammo(ObjectMap.of(u, b)).display(t);
       t.row();
+      i++;
     }
   }
 }

@@ -34,18 +34,21 @@ public class DeathItemDrop extends Ability {
 
   @Override
   public void death(Unit unit) {
-    Building core = unit.closestEnemyCore();
-    for (ItemStack i : this.drops) {
-      if (i.amount <= elseItem(core, i.item)) {
-        unit.closestEnemyCore().items.add(i.item, i.amount);
-      } else if (elseItem(core, i.item) > 0 && i.amount > elseItem(core, i.item)) {
-        for (int a = 0; a <= elseItem(core, i.item); a++) {
-          unit.closestEnemyCore().items.add(i.item, 1);
+    if (unit.closestEnemyCore() != null) {
+      Building core = unit.closestEnemyCore();
+      for (ItemStack i : this.drops) {
+        if (i.amount <= elseItem(core, i.item)) {
+          unit.closestEnemyCore().items.add(i.item, i.amount);
+        } else if (elseItem(core, i.item) > 0 && i.amount > elseItem(core, i.item)) {
+          for (int a = 0; a <= elseItem(core, i.item); a++) {
+            unit.closestEnemyCore().items.add(i.item, 1);
+          }
+        } else {
+          unit.closestEnemyCore().items.add(i.item, 0);
         }
-      } else {
-        unit.closestEnemyCore().items.add(i.item, 0);
       }
-    }
+    } else
+      return;
   }
 
   public int elseItem(Building core, Item item) {
