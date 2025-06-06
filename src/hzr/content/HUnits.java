@@ -40,7 +40,6 @@ public class HUnits {
         this.speed = 6.0f;
         this.drag = 0.1f;
         this.accel = 0.3f;
-        this.outlineColor = Color.valueOf("212121");
         this.lowAltitude = true;
         this.itemCapacity = 50;
         this.rotateSpeed = 22.0f;
@@ -123,7 +122,6 @@ public class HUnits {
         this.omniMovement = false;
         this.rotateMoveFirst = true;
         this.itemCapacity = 0;
-        this.outlineColor = Color.valueOf("#212121");
         this.crushDamage = 4;
         this.weapons.add(new Weapon("sc-fenghuo1-weapon") {
           {
