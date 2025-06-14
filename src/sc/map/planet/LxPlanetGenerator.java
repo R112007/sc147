@@ -80,7 +80,6 @@ public class LxPlanetGenerator extends PlanetGenerator {
     };
     {
         defaultLoadout = SCLoadouts.jichuhexi;
-
     }
 
     ObjectMap<Block, Block> dec = ObjectMap.of(

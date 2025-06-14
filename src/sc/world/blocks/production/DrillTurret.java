@@ -147,7 +147,7 @@ public class DrillTurret extends BaseTurret {
         }
 
         public boolean canMine(Item item) {
-            return item.hardness >= minDrillTier && item.hardness <= maxDrillTier && items.get(item) < itemCapacity;
+            return item.hardness >= minDrillTier && item.hardness <= maxDrillTier;
         }
 
         public float efficiency() {

@@ -5,7 +5,6 @@ import arc.math.Mathf;
 import arc.math.geom.Vec3;
 import arc.util.Tmp;
 import arc.util.noise.Simplex;
-import hzr.generator.HzrPlanetGenerator;
 import mindustry.game.Team;
 import mindustry.graphics.g3d.HexMesh;
 import mindustry.graphics.g3d.HexSkyMesh;
@@ -13,6 +12,7 @@ import mindustry.graphics.g3d.MultiMesh;
 import mindustry.maps.planet.SerpuloPlanetGenerator;
 import mindustry.type.Planet;
 import mindustry.type.Sector;
+import sc.content.SCLoadouts;
 import sc.content.SCPlanets;
 import sc.graphics.SCPal;
 
@@ -39,6 +39,10 @@ public class HPlanets {
           @Override
           public boolean allowLanding(Sector sector) {
             return false;
+          }
+
+          {
+            defaultLoadout = SCLoadouts.yijijizhan;
           }
 
           @Override

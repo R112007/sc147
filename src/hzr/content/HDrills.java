@@ -18,7 +18,8 @@ public class HDrills {
   public static void load() {
     HDrills.turretdrill1 = new DrillTurret("turretdrill1") {
       {
-        this.range = 90f;
+        this.mineSpeed = 0.5f;
+        this.range = 50f;
         this.itemCapacity = 25;
         this.requirements(Category.production, ItemStack.with(new Object[] { HItems.gao, 20 }));
       }

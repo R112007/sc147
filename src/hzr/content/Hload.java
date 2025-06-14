@@ -9,8 +9,10 @@ public class Hload {
     HUnits.load();
     HDrills.load();
     Hdistribution.load();
+    HWall.load();
     HStorage.load();
     HPlanets.load();
+    Hsectorpresets.load();
     HTechTree.load();
   }
 }

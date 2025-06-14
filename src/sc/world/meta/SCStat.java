@@ -16,6 +16,8 @@ public class SCStat {
   public static final Stat insideCrystalE;;
   public static final Stat hasCrystal;
   public static final Stat healpercent;
+  public static final Stat dependbuild;
+  public static final Stat dependfloor;
 
   static {
     armorMultiplier = new Stat("armorMultiplier");
@@ -25,11 +27,13 @@ public class SCStat {
     waittime = new Stat("waittime", StatCat.function);
     length = new Stat("length");
     reducepercent = new Stat("reducepercent", StatCat.function);
-    hasCrystal = new Stat("hasCrystal", SCStstCat.crystal);
-    consumeCrystalE = new Stat("consumeCrystalE", SCStstCat.crystal);
-    MaxCrystalE = new Stat("MaxCrystalE", SCStstCat.crystal);
-    insideCrystalE = new Stat("insideCrystalE", SCStstCat.crystal);
+    hasCrystal = new Stat("hasCrystal", SCStatCat.crystal);
+    consumeCrystalE = new Stat("consumeCrystalE", SCStatCat.crystal);
+    MaxCrystalE = new Stat("MaxCrystalE", SCStatCat.crystal);
+    insideCrystalE = new Stat("insideCrystalE", SCStatCat.crystal);
     healpercent = new Stat("healpercent", StatCat.function);
+    dependbuild = new Stat("dependbuild", SCStatCat.depend);
+    dependfloor = new Stat("dependfloor", SCStatCat.depend);
   }
 
 }

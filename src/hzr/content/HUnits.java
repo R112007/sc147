@@ -3,6 +3,7 @@ package hzr.content;
 import arc.graphics.Color;
 import mindustry.content.Fx;
 import mindustry.content.UnitTypes;
+import mindustry.entities.abilities.ShieldRegenFieldAbility;
 import mindustry.entities.bullet.BasicBulletType;
 import mindustry.entities.bullet.MissileBulletType;
 import mindustry.entities.effect.ParticleEffect;
@@ -25,7 +26,7 @@ public class HUnits {
       // 机甲
       qiyuan1,
       // 坦克
-      fenghuo1,
+      fenghuo1, fenghuo2,
       // 物资
       unitbrokena;
 
@@ -56,14 +57,24 @@ public class HUnits {
         this.hitSize = 12;
         this.coreUnitDock = true;
         this.abilities.add(new ContinueRepairField(1.5f, 64, true, true));
-        this.weapons.add(new MultiWeapon(HBullets.ningwangbullet) {
+        this.weapons.add(new Weapon() {
           {
             this.reload = 65.0f;
             this.x = 0f;
             this.y = 0.75f;
             this.top = false;
             this.inaccuracy = 0f;
-            this.bullet = HBullets.ningwangbullet;
+            this.bullet = HBullets.ningwang1;
+          }
+        });
+        this.weapons.add(new Weapon() {
+          {
+            this.reload = 65.0f;
+            this.x = 0f;
+            this.y = 0.75f;
+            this.top = false;
+            this.inaccuracy = 0f;
+            this.bullet = HBullets.ningwang2;
           }
         });
       }
@@ -154,6 +165,78 @@ public class HUnits {
                 this.height = 9;
                 this.speed = 4;
                 this.lifetime = 45;
+                this.despawnEffect = this.hitEffect = HFx.smalltankhit;
+                this.trailLength = 8;
+                this.trailWidth = 1.5f;
+                this.trailColor = Color.valueOf("99F8FFFF");
+                this.trailEffect = new ParticleEffect() {
+                  {
+                    this.particles = 1;
+                    this.region = "circle-shadow";
+                    this.length = 0;
+                    this.lifetime = 10;
+                    this.sizeFrom = 4;
+                    this.colorFrom = Color.valueOf("74C2E8FF");
+                    this.colorTo = Color.valueOf("99F8FFFF");
+                  }
+                };
+              }
+            };
+          }
+        });
+      }
+    };
+    HUnits.fenghuo2 = new UnitType("fenghuo2") {
+      {
+        this.constructor = UnitTypes.stell.constructor;
+        this.controller = UnitTypes.stell.controller;
+        this.ammoType = new ItemAmmoType(SCItems.cuguijing);
+        this.armor = 5;
+        this.speed = 0.6f;
+        this.rotateSpeed = 8;
+        this.abilities.add(new DeathItemDrop(ItemStack.with(HItems.brokenA, 8, HItems.brokenB, 14)));
+        this.abilities.add(new ShieldRegenFieldAbility(80, 400, 300, 32));
+        this.hitSize = 18;
+        this.treadFrames = 10;
+        this.health = 1780;
+        this.treadPullOffset = 1;
+        this.rippleScale = 1.2f;
+        this.squareShape = true;
+        this.omniMovement = false;
+        this.rotateMoveFirst = true;
+        this.itemCapacity = 0;
+        this.crushDamage = 4;
+        this.weapons.add(new Weapon("sc-fenghuo2-weapon") {
+          {
+            this.mirror = false;
+            this.y = 0;
+            this.x = 0;
+            this.top = true;
+            this.reload = 25;
+            this.rotateSpeed = 8;
+            this.recoil = 0.5f;
+            this.shake = 0.5f;
+            this.rotate = true;
+            this.inaccuracy = 0;
+            this.shoot = new ShootBarrel() {
+              {
+                this.shotDelay = 0f;
+                this.shots = 5;
+                this.barrels = new float[] { 0f, 0f, 0f, 0f, 0f, 3f, 0f, 0f, -3f, 0f, 0f, 6f, 0f, 0f, -6f };
+              }
+            };
+            this.bullet = new MissileBulletType() {
+              {
+                this.damage = 70;
+                this.shootEffect = Fx.none;
+                this.smokeEffect = Fx.none;
+                this.splashDamageRadius = 15;
+                this.splashDamage = 50;
+                this.homingDelay = 30;
+                this.width = 3.5f;
+                this.height = 9;
+                this.speed = 4;
+                this.lifetime = 55;
                 this.despawnEffect = this.hitEffect = HFx.smalltankhit;
                 this.trailLength = 8;
                 this.trailWidth = 1.5f;

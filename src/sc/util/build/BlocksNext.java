@@ -1,4 +1,4 @@
-package sc.ai;
+package sc.util.build;
 
 import java.util.HashSet;
 import java.util.LinkedList;
