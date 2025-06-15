@@ -2,6 +2,7 @@ package sc;
 
 import sc.content.SCUnits;
 import sc.content.Test;
+import sc.gen.EntityRegistry;
 import sc.ui.TimeControl;
 import sc.ui.Tips;
 import sc.world.SCAttributes;
@@ -91,6 +92,7 @@ public class SCMain extends Mod {
   @Override
   public void loadContent() {
     Log.info("Start to Load Contents");
+    EntityRegistry.register();
     SCStatusEffects.load();
     SCAttributes.load();
     SCLiquids.load();
