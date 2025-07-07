@@ -9,6 +9,7 @@ import mindustry.game.Team;
 import mindustry.graphics.g3d.HexMesh;
 import mindustry.graphics.g3d.HexSkyMesh;
 import mindustry.graphics.g3d.MultiMesh;
+import mindustry.maps.planet.ErekirPlanetGenerator;
 import mindustry.maps.planet.SerpuloPlanetGenerator;
 import mindustry.type.Planet;
 import mindustry.type.Sector;
@@ -22,7 +23,7 @@ public class HPlanets {
   public static void load() {
     HPlanets.hzr = new Planet("hzr", SCPlanets.scsun, 2f, 3) {
       {
-        this.generator = new SerpuloPlanetGenerator() {
+        this.generator = new ErekirPlanetGenerator() {
           public Color c1 = Color.valueOf("#895841FF");
           public Color c2 = Color.valueOf("#623C35FF");
           public Color c3 = Color.valueOf("#4D95A3FF");
@@ -69,9 +70,8 @@ public class HPlanets {
         this.atmosphereRadOut = 0.05f;
         this.lightSrcTo = 0.7f;
         this.lightDstFrom = 0.2f;
-        // this.localizedName = "this";
         this.visible = true;
-        this.bloom = false;
+        this.bloom = true;
         this.updateLighting = true;
         this.accessible = true;
         this.allowWaves = true;
@@ -83,13 +83,11 @@ public class HPlanets {
         this.clearSectorOnLose = false;
         this.allowLaunchLoadout = true;
         this.startSector = 1;
-        this.orbitRadius = 35;
+        this.orbitRadius = 55;
         this.ruleSetter = r -> {
           r.waveTeam = Team.crux;
-          r.placeRangeCheck = false;
-          r.showSpawns = false;
+          r.showSpawns = true;
         };
-
         this.tidalLock = false;
         this.iconColor = Color.valueOf("#79C5C5FF");
         this.rotateTime = 300;

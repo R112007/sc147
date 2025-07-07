@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import arc.Core;
 import arc.graphics.Color;
-import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
 import arc.struct.Seq;
 import arc.util.Log;
@@ -38,7 +37,6 @@ public class LiquidFloorGenerator extends PowerGenerator {
   public float minEfficiency = 0f;
   public float displayEfficiencyScale = 1f;
   public boolean displayEfficiency = true;
-  public TextureRegion region;
 
   public LiquidFloorGenerator(String name) {
     super(name);
@@ -55,7 +53,6 @@ public class LiquidFloorGenerator extends PowerGenerator {
 
   @Override
   public void load() {
-    this.region = Core.atlas.find("sc-" + this.name + "-liquid");
     super.load();
   }
 
@@ -250,20 +247,21 @@ public class LiquidFloorGenerator extends PowerGenerator {
       return true;
     }
 
-    @Override
-    public void draw() {
-      super.draw();
+    public Liquid maxLiquid() {
       Seq<Tile> tilelist;
       tilelist = tile.getLinkedTilesAs(block, tempTiles);
       Liquid liq = Liquids.water;
-      // Liquid liq = getMaxLiquid(this);
       for (var t : tilelist) {
         if (t.floor().liquidDrop != null && noinLevel3(t)) {
           liq = t.floor().liquidDrop;
           break;
         }
       }
-      Drawf.liquid(region, x, y, Mathf.clamp(productionEfficiency, 0f, 1f), liq.color);
+      return liq;
+    }
+    @Override
+    public void draw() {
+      super.draw();
     }
 
     @Override

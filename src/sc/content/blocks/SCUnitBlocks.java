@@ -5,6 +5,7 @@ import mindustry.type.ItemStack;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
 import mindustry.world.blocks.units.Reconstructor;
+import mindustry.world.blocks.units.RepairTurret;
 import mindustry.world.blocks.units.UnitFactory;
 import sc.content.SCItems;
 import sc.content.SCUnits;
@@ -14,6 +15,7 @@ public class SCUnitBlocks {
   public static Block airfactory;
   public static Block navalfactory;
   public static Block T2unit;
+  public static Block unitrepair;
 
   public static void load() {
     groundfactory = new UnitFactory("groundfactory") {
@@ -63,6 +65,25 @@ public class SCUnitBlocks {
         this.requirements(Category.units,
             ItemStack.with(new Object[] { SCItems.lv, 200, SCItems.li, 120, SCItems.cuguijing, 80 }));
         this.alwaysUnlocked = false;
+      }
+    };
+    unitrepair = new RepairTurret("unitrepair") {
+      {
+        this.powerUse = 8;
+        this.health = 900;
+        this.size = 2;
+        this.liquidCapacity = 30;
+        this.length = 6;
+        this.repairSpeed = 1.67777777f;
+        this.repairRadius = 180;
+        this.beamWidth = 1;
+        this.pulseRadius = 2;
+        this.coolantUse = 0.16f;
+        this.coolantMultiplier = 1.6f;
+        this.acceptCoolant = true;
+        this.squareSprite = false;
+        this.requirements(Category.units,
+            ItemStack.with(new Object[] { SCItems.lv, 80, SCItems.li, 60, SCItems.chunguijing, 80, SCItems.xi, 45 }));
       }
     };
   }

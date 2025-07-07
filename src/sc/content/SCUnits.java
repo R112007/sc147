@@ -5,10 +5,15 @@ import mindustry.type.ammo.PowerAmmoType;
 import sc.entities.abilities.ContinueRepairField;
 import sc.entities.abilities.DeathItemDrop;
 import sc.entities.abilities.FlashAbility;
+import sc.gen.EntityRegistry;
+import sc.gen.ShieldBuilderUnit;
+import sc.gen.ShieldBuilderc;
 import sc.graphics.SCPal;
+import sc.type.BuildShieldUnitType;
 import arc.graphics.Color;
 import arc.math.Rand;
 import arc.struct.Seq;
+import ent.anno.Annotations.EntityDef;
 import mindustry.ai.types.MinerAI;
 import mindustry.content.Fx;
 import mindustry.content.StatusEffects;
@@ -33,10 +38,12 @@ import mindustry.entities.bullet.BulletType;
 import mindustry.entities.bullet.LaserBoltBulletType;
 import mindustry.entities.effect.WaveEffect;
 import mindustry.entities.pattern.ShootSpread;
+import mindustry.gen.BlockUnitc;
 import mindustry.gen.Sounds;
+import mindustry.gen.Unitc;
 import mindustry.entities.effect.ParticleEffect;
 
-@SuppressWarnings("all")
+//@SuppressWarnings("all")
 public class SCUnits {
   public static UnitType tansuozhe;
   public static UnitType chujia1;// 101
@@ -54,8 +61,36 @@ public class SCUnits {
   public static UnitType liekong3;
   public static UnitType miner1;
   public static UnitType miner2;
+  public static @EntityDef({ Unitc.class, ShieldBuilderc.class }) BuildShieldUnitType block;
+  public static @EntityDef({ Unitc.class, ShieldBuilderc.class, BlockUnitc.class }) BuildShieldUnitType block1;
 
   public static void load() {
+    SCUnits.block = EntityRegistry.content("block", ShieldBuilderUnit.class, name -> new BuildShieldUnitType(name) {
+      {
+        this.health = 6000.0f;
+        this.flying = true;
+        this.ammoType = new PowerAmmoType(800);
+        this.speed = 6.0f;
+        this.drag = 0.1f;
+        this.accel = 0.3f;
+        this.outlineColor = Color.valueOf("212121");
+        this.lowAltitude = true;
+      }
+    });
+    SCUnits.block1 = EntityRegistry.content("block1", ShieldBuilderUnit.class, name -> new BuildShieldUnitType(name) {
+      {
+        this.health = 6000.0f;
+        this.flying = true;
+        this.ammoType = new PowerAmmoType(800);
+        this.speed = 6.0f;
+        this.drag = 0.1f;
+        this.rotateSpeed = 360f;
+        // this.hidden = true;
+        this.accel = 0.3f;
+        this.outlineColor = Color.valueOf("212121");
+        this.lowAltitude = true;
+      }
+    });
     SCUnits.tansuozhe = new UnitType("tansuozhe") {
       {
         this.health = 600.0f;

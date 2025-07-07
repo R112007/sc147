@@ -118,7 +118,7 @@ public class LinkWall extends Wall {
         }
       }
       healthChanged();
-      if (health <= 0) {
+      if (w.health <= 0) {
         Call.buildDestroyed(this);
       }
     }
@@ -128,9 +128,8 @@ public class LinkWall extends Wall {
       super.remove();
       blockList.remove(this);
       for (LinkWallBuild b : this.linked) {
-        b.linked.clear();
+        b.linked.removeAll(this.linked.toSeq());
         b.wallData = new WallData(b);
-        b.linked.add(this);
         b.needUpdate = true;
       }
     }

@@ -1,16 +1,21 @@
 package sc.content;
 
+import mindustry.content.Blocks;
 import mindustry.content.Items;
 import mindustry.type.Category;
 import mindustry.type.ItemStack;
 import mindustry.world.Block;
+import mindustry.world.meta.BuildVisibility;
 import sc.content.blocks.SCDistribution;
 import sc.content.blocks.SCTurrets;
 import sc.world.blocks.DependentBlocks;
 import sc.world.blocks.crystal.CrystalBlock;
 import sc.world.blocks.denfence.HealWall;
 import sc.world.blocks.denfence.LinkWall;
+import sc.world.blocks.denfence.ShieldBuildTurret;
+import sc.world.blocks.denfence.AbsorbForceProjector;
 import sc.world.blocks.distribution.SCLaunchPad;
+import sc.world.blocks.payloads.UnitLanuchPad;
 import sc.world.blocks.power.LiquidFloorGenerator;
 import sc.world.blocks.production.DrillTurret;
 
@@ -22,6 +27,9 @@ public class Test {
   public static Block test4;
   public static Block test5;
   public static Block test6;
+  public static Block test7;
+  public static Block test8;
+  public static Block test9;
 
   public static void load() {
     Test.test = new CrystalBlock("test") {
@@ -91,5 +99,46 @@ public class Test {
         consumePower(0.60f);
       }
     };
+    Test.test7 = new ShieldBuildTurret("test7") {
+      {
+        range = 200f;
+        size = 3;
+        buildSpeed = 1.5f;
+
+        this.requirements(Category.effect, ItemStack.with(new Object[] { SCItems.lv, 80, SCItems.li, 65 }));
+        consumePower(3f);
+      }
+    };
+    /*
+     * test8 = new AbsorbForceProjector("test8") {
+     * {
+     * this.size = 2;
+     * this.itemCapacity = 10;
+     * this.health = 720;
+     * this.requirements(Category.effect,
+     * ItemStack.with(new Object[] { SCItems.li, 100, SCItems.cuguijing, 75,
+     * SCItems.xi, 125 }));
+     * this.radius = 65f;
+     * this.shieldHealth = 600f;
+     * this.phaseShieldBoost = 700f;
+     * this.phaseRadiusBoost = 40f;
+     * this.phaseUseTime = 250f;
+     * this.cooldownNormal = 1.6f;
+     * this.cooldownLiquid = 2.6f;
+     * this.cooldownBrokenBase = 1f;
+     * this.consumesPower = true;
+     * this.consumePower(6.5f);
+     * }
+     * };
+     */
+    test9 = new UnitLanuchPad("test9") {
+      {
+        size = 3;
+        this.requirements(Category.units, ItemStack.with(new Object[] { SCItems.lv, 8 }));
+        this.alwaysUnlocked = true;
+      }
+    };
+    Blocks.payloadSource.alwaysUnlocked = true;
+    Blocks.payloadSource.buildVisibility = BuildVisibility.shown;
   }
 }
