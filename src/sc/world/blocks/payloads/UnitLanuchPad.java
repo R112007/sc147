@@ -19,7 +19,6 @@ import mindustry.world.blocks.payloads.Payload;
 import mindustry.world.blocks.payloads.PayloadBlock;
 import mindustry.world.blocks.payloads.UnitPayload;
 import sc.game.WaitTime;
-import sc.util.Logs;
 
 /**
  * UnitLanuchPad
