@@ -11,7 +11,6 @@ import mindustry.type.Planet;
 import sc.content.blocks.SCBlocksEffects;
 import sc.graphics.SCPal;
 import sc.map.planet.LxPlanetGenerator;
-import sc.type.SCPlanet;
 
 public class SCPlanets {
 
@@ -19,7 +18,7 @@ public class SCPlanets {
   public static Planet scsun;
 
   public static void load() {
-    scsun = new SCPlanet("scsun", null, 9.5f) {
+    scsun = new Planet("scsun", null, 9.5f) {
       {
         this.bloom = true;
         this.accessible = false;

@@ -38,7 +38,6 @@ import mindustry.ui.dialogs.*;
 import mindustry.world.blocks.storage.*;
 import mindustry.world.blocks.storage.CoreBlock.*;
 import sc.SCVars;
-import sc.type.SCSectorPreset;
 
 import static arc.Core.*;
 import static mindustry.Vars.*;
