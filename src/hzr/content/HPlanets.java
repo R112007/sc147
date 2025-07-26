@@ -10,7 +10,6 @@ import mindustry.graphics.g3d.HexMesh;
 import mindustry.graphics.g3d.HexSkyMesh;
 import mindustry.graphics.g3d.MultiMesh;
 import mindustry.maps.planet.ErekirPlanetGenerator;
-import mindustry.maps.planet.SerpuloPlanetGenerator;
 import mindustry.type.Planet;
 import mindustry.type.Sector;
 import sc.content.SCLoadouts;
@@ -32,8 +31,6 @@ public class HPlanets {
           public Color c6 = Color.valueOf("#679C39FF");
           public Color c7 = Color.valueOf("#88CB4EFF");
           public Color c8 = Color.valueOf("#82CD7EFF");
-          public Color c9 = Color.valueOf("#FFFEF9BF");
-          public Color c10 = Color.valueOf("#919191FF");
           public Color[] arr = { c1, c2, c3, c4, c5, c6, c7, c8 };
           public Vec3 vec;
 
@@ -47,10 +44,11 @@ public class HPlanets {
           }
 
           @Override
-          public Color getColor(Vec3 position) {
+          public void getColor(Vec3 position, Color out) {
+
             this.vec = new Vec3(noise1(1, 16, 0.2, 8 / 3), noise1(6, 72, 0.8, 9 / 2), noise1(3, 2, 0.4, 3 / 2));
             int amo = Mathf.round(Mathf.clamp(this.vec.x * this.arr.length, 0, this.arr.length - 1));
-            return Tmp.c1.set(this.arr[amo]);
+            out = Tmp.c1.set(this.arr[amo]);
           }
 
           public float noise1(double amount, double a, double b, double c) {

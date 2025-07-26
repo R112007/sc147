@@ -143,12 +143,13 @@ public class LxPlanetGenerator extends PlanetGenerator {
     }
 
     @Override
-    public Color getColor(Vec3 position) {
+    public void getColor(Vec3 position, Color out) {
         Block block = getBlock(position);
         // replace salt with sand color
         if (block == Blocks.salt)
-            return Blocks.sand.mapColor;
-        return Tmp.c1.set(block.mapColor).a(1f - block.albedo);
+            out = Blocks.sand.mapColor;
+        else
+            out = Tmp.c1.set(block.mapColor).a(1f - block.albedo);
     }
 
     @Override

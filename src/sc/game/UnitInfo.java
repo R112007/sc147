@@ -13,6 +13,7 @@ public class UnitInfo {
   public static final UnitInfo[] all = new UnitInfo[10000];
   public ObjectMap<UnitType, ExportStat> export = new ObjectMap<>();
   public ObjectMap<UnitType, ExportStat> imports = new ObjectMap<>();
+  public static int lastedid;
 
   public UnitInfo(int id, Sector sector) {
     this.sector = sector;
