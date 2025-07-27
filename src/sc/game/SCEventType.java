@@ -2,10 +2,10 @@ package sc.game;
 
 import sc.type.UnitStack;
 
-/**
- * EventTypes
- */
-public class EventTypes {
+public class SCEventType {
+  public static class SaveUnitInfo {
+  }
+
   public static class LaunchUnitEvent {
     public final UnitStack stack;
 
