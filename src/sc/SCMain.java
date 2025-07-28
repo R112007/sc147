@@ -10,6 +10,7 @@ import sc.ui.TimeControl;
 import sc.ui.Tips;
 import sc.world.SCAttributes;
 import mindustry.mod.Mod;
+import mindustry.type.Sector;
 import mindustry.type.SectorPreset;
 import mindustry.ui.dialogs.BaseDialog;
 import mindustry.ui.fragments.HintsFragment;
@@ -28,6 +29,7 @@ import hzr.content.Hload;
 import sc.content.SCBlocks;
 import sc.content.SCIcon;
 import mindustry.game.EventType;
+import mindustry.game.EventType.SectorLaunchEvent;
 import mindustry.game.EventType.StateChangeEvent;
 import mindustry.game.EventType.Trigger;
 import mindustry.gen.Icon;
@@ -41,12 +43,27 @@ public class SCMain extends Mod {
   public static BaseDialog welcomeDialog;
   public static final String scqq = "http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=Rrju8RLWbsJstJ3rcJxWyrtop4u7uRb9&authKey=gdngZkPeYxZPhYTmjQUTjPos%2FJKckD02YSFnYLmdVojPZIzZw1T%2FbtubSoyuw2LA&noverify=0&group_code=756820891";
   int timer = 0;
+  Seq<SectorPreset> sectorpresets = Vars.content.getBy(ContentType.sector);
+  Seq<Sector> sectors = new Seq<>();
 
   public SCMain() {
     Log.info("Loaded Synthetic Crystal Mod Constructor.");
     closeMod("HF");
     Events.on(mindustry.game.EventType.ClientLoadEvent.class, (e) -> {
       UnitInfoFileStorage.loadAll();
+      for (var preset : UnitInfo.all) {
+        if (preset != null)
+          sectors.add(preset.getBoundSector());
+      }
+      Log.info("开始遍历sectors");
+      for (var u : UnitInfo.all) {
+        if (u != null)
+          Log.info("id+" + u.id + "  sector " + u.getBoundSector());
+      }
+      Log.info("");
+      for (var u : sectors) {
+        Log.info("id+" + u.id + "  sector " + u + " " + u.name());
+      }
       welcomeDialog = new BaseDialog(Core.bundle.get("sc.welcome"));
       welcomeDialog.cont.image(Core.atlas.find("sc-crystal-core")).size(310f).pad(5.0f).row();
       welcomeDialog.cont.pane(t -> {
@@ -73,9 +90,10 @@ public class SCMain extends Mod {
     Events.run(Trigger.update, () -> {
       update();
     });
-    Events.on(SaveUnitInfo.class, e -> {
-      saveUnitInfo();
-      UnitInfoFileStorage.saveAll();
+    Events.on(SectorLaunchEvent.class, e -> {
+      if (!(sectors.contains(e.sector))) {
+        new UnitInfo(e.sector);
+      }
     });
     Events.on(StateChangeEvent.class, event -> {
       if (event.to == GameState.State.menu) {
@@ -84,18 +102,20 @@ public class SCMain extends Mod {
         Log.info("lastid " + UnitInfo.returnLastId());
         for (var u : UnitInfo.all) {
           if (u != null)
-            Log.info("id+" + u.id + "  sector " + u.sector);
+            Log.info("id+" + u.id + "  sector " + u.getBoundSector());
         }
       }
     });
     Events.on(mindustry.game.EventType.ClientLoadEvent.class, (e) -> {
       Events.run(Trigger.update, () -> {
-        if (Vars.ui.planet.isShown()) {
-          Vars.ui.planet.hide();
-          if (!SCVars.scui.scplanet.isShown()) {
-            SCVars.scui.scplanet.show();
-          }
-        }
+        /*
+         * if (Vars.ui.planet.isShown()) {
+         * Vars.ui.planet.hide();
+         * if (!SCVars.scui.scplanet.isShown()) {
+         * SCVars.scui.scplanet.show();
+         * }
+         * }
+         */
         if (Vars.ui.research.isShown()) {
           Vars.ui.research.hide();
           if (!SCVars.scui.scresearch.isShown()) {
@@ -134,7 +154,7 @@ public class SCMain extends Mod {
     LxTechTree.load();
     Hload.load();
     TimeControl.load();
-    checkUnitInfo();
+    // checkUnitInfo();
     Log.info("hava loaded all");
   }
 
@@ -147,28 +167,35 @@ public class SCMain extends Mod {
   }
 
   public void checkUnitInfo() {
-    Seq<SectorPreset> sectorpresets = Vars.content.getBy(ContentType.sector);
+    // Seq<SectorPreset> sectorpresets = Vars.content.getBy(ContentType.sector);
     Log.info("before new");
     for (var u : UnitInfo.all) {
       if (u != null)
-        Log.info("new之前 id " + u.id + " sector " + u.sector);
+        Log.info("new之前 id " + u.id + " sector " + u.getBoundSector());
     }
     Log.info("start new");
     for (var preset : sectorpresets) {
       Log.info(preset.name);
       if (!(UnitInfo.equal(preset.sector))) {
-        new UnitInfo(preset.sector);
+        new UnitInfo(preset.sector).saveInfo();
       }
+    }
+    saveUnitInfo();
+    UnitInfoFileStorage.saveAll();
+    Log.info("after new");
+    for (var u : UnitInfo.all) {
+      if (u != null)
+        Log.info("ne之后 id " + u.id + " sector " + u.getBoundSector());
     }
   }
 
   public void saveUnitInfo() {
     int amount = UnitInfo.returnLastId();
-    if (UnitInfo.all[0] == null) {
-      return;
-    }
     for (int i = 0; i < amount; i++) {
-      UnitInfo.all[i].saveInfo();
+      if (UnitInfo.all[i] != null) {
+        UnitInfo.all[i].saveInfo();
+        Log.info("已保存" + UnitInfo.all[i]);
+      }
     }
   }
 

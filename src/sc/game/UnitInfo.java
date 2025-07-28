@@ -5,6 +5,8 @@ import arc.Events;
 import arc.math.WindowedMean;
 import arc.struct.ObjectMap;
 import arc.util.Log;
+import mindustry.Vars;
+import mindustry.type.Planet;
 import mindustry.type.Sector;
 import mindustry.type.UnitType;
 import sc.game.SCEventType.SaveUnitInfo;
@@ -12,19 +14,28 @@ import sc.type.UnitStack;
 
 public class UnitInfo {
   private static final int valueWindow = 60;
-  public final Sector sector;
+  // public final Sector sector;
+  public final String planetName;
   public final int id;
-  public static UnitInfo[] all = new UnitInfo[2000];
+  public final int sectorId;
+  public static final UnitInfo[] all = new UnitInfo[2000];
   public ObjectMap<UnitType, ExportStat> export = new ObjectMap<>();
   public ObjectMap<UnitType, ExportStat> imports = new ObjectMap<>();
   public static int lastId = loadLastId();
 
   public UnitInfo(Sector sector) {
-    this.sector = sector;
+    this.planetName = sector.planet.name;
+    this.sectorId = sector.id;
     this.id = lastId;
     all[id] = this;
     lastId++;
     saveLastId();
+  }
+
+  public UnitInfo() {
+    this.sectorId = -1;
+    this.planetName = "null";
+    this.id = -1;
   }
 
   public void handUnitsExport(UnitStack stack) {
@@ -52,7 +63,7 @@ public class UnitInfo {
       if (info == null) {
         continue;
       }
-      if (info.sector.equals(targetSector)) {
+      if (info.getBoundSector().equals(targetSector)) {
         return info;
       }
     }
@@ -70,11 +81,19 @@ public class UnitInfo {
   private static void saveLastId() {
     Core.settings.put("unitinfo.lastid", lastId);
     Events.fire(SaveUnitInfo.class);
+    Log.info("SaveUnitInfo监听器发送");
     Core.settings.manualSave();
   }
 
+  public Sector getBoundSector() {
+    Planet planet = Vars.content.planet(planetName);
+    if (planet == null)
+      return null;
+    return planet.sectors.get(sectorId);
+  }
+
   public void saveInfo() {
-    Core.settings.putJson(sector.planet.name + "-s-" + id + "-unitinfo", this);
+    Core.settings.putJson(planetName + "-s-" + id + "-unitinfo", this);
   }
 
   public static class ExportStat {
